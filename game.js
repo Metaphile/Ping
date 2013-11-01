@@ -187,21 +187,8 @@ var GAME = (function () {
 								ball.position.y = ctx.canvas.height/2;
 								ball.velocity.x = 0;
 								ball.velocity.y = 0;
-							};
-							
-							that.update = function (interval) {
-								that.__proto__.update(interval);
 								
-								remaining -= interval;
-								if (remaining <= 0) {
-									var angle = Math.randRange(-45, 45);
-									// randomly serve to the left or right
-									if (Math.random() > 0.5) { angle += 180; }
-									ball.velocity.x = Math.cos(angle * Math.PI/180) * BALL_SPEED;
-									ball.velocity.y = Math.sin(angle * Math.PI/180) * BALL_SPEED;
-									
-									changeState(states.playing);
-								}
+								changeState(states.servingNotPaused);
 							};
 							
 							that.draw = function () {
@@ -212,6 +199,78 @@ var GAME = (function () {
 								ctx.textAlign = 'center';
 								ctx.fillText(Math.ceil(remaining), ctx.canvas.width/2, ctx.canvas.height/2 - 25);
 							};
+							
+							states.servingNotPaused = (function () {
+								function ServingNotPaused() {
+									var that = this;
+									
+									that.onEnter = ENGINE.noop;
+									
+									that.update = function (interval) {
+										that.__proto__.update(interval);
+										
+										remaining -= interval;
+										if (remaining <= 0) {
+											var angle = Math.randRange(-45, 45);
+											// randomly serve to the left or right
+											if (Math.random() > 0.5) { angle += 180; }
+											ball.velocity.x = Math.cos(angle * Math.PI/180) * BALL_SPEED;
+											ball.velocity.y = Math.sin(angle * Math.PI/180) * BALL_SPEED;
+											
+											changeState(states.playing);
+										}
+									};
+									
+									that.onKeyDown = function (key) {
+										if (key === ENGINE.Keyboard.keys.esc) changeState(states.servingPaused);
+									};
+								}
+								
+								ServingNotPaused.prototype = that; // states.serving
+								
+								return new ServingNotPaused();
+							}());
+							
+							states.servingPaused = (function () {
+								function ServingPaused() {
+									var that = this;
+									
+									var BLINK_INTERVAL = 0.6, elapsed, dimPrompt;
+									
+									that.onEnter = function () {
+										elapsed = 0;
+										dimPrompt = false;
+									};
+									
+									that.update = function (interval) {
+										elapsed += interval;
+										if (elapsed > BLINK_INTERVAL) {
+											dimPrompt = !dimPrompt;
+											elapsed -= BLINK_INTERVAL;
+										}
+									};
+									
+									that.draw = function () {
+										that.__proto__.draw();
+										
+										ctx.fillStyle = 'rgba(0, 0, 0, 0.33)';
+										ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+										
+										ctx.fillStyle = dimPrompt ? 'gray' : 'white';
+										ctx.font = 'normal 20px monospace';
+										ctx.textAlign = 'center';
+										ctx.fillText('Paused', ctx.canvas.width/2, ctx.canvas.height/2 + 25);
+									};
+									
+									that.onKeyDown = function (key) {
+										if (key === ENGINE.Keyboard.keys.esc) changeState(states.servingNotPaused);
+									};
+								}
+								
+								ServingPaused.prototype = that; // states.serving
+								
+								return new ServingPaused();
+							}());
 						}
 						
 						Serving.prototype = that; // states.main
@@ -223,7 +282,66 @@ var GAME = (function () {
 						function Playing() {
 							var that = this;
 							
-							that.onEnter = ENGINE.noop;
+							that.onEnter = function () {
+								changeState(states.playingNotPaused);
+							};
+							
+							states.playingNotPaused = (function () {
+								function PlayingNotPaused() {
+									var that = this;
+									
+									that.onEnter = ENGINE.noop;
+									
+									that.onKeyDown = function (key) {
+										if (key === ENGINE.Keyboard.keys.esc) changeState(states.playingPaused);
+									};
+								}
+								
+								PlayingNotPaused.prototype = that; // states.playing
+								
+								return new PlayingNotPaused();
+							}());
+							
+							states.playingPaused = (function () {
+								function PlayingPaused() {
+									var that = this;
+									
+									var BLINK_INTERVAL = 0.6, elapsed, dimPrompt;
+									
+									that.onEnter = function () {
+										elapsed = 0;
+										dimPrompt = false;
+									};
+									
+									that.update = function (interval) {
+										elapsed += interval;
+										if (elapsed > BLINK_INTERVAL) {
+											dimPrompt = !dimPrompt;
+											elapsed -= BLINK_INTERVAL;
+										}
+									};
+									
+									that.draw = function () {
+										that.__proto__.draw();
+										
+										ctx.fillStyle = 'rgba(0, 0, 0, 0.33)';
+										ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+										
+										ctx.fillStyle = dimPrompt ? 'gray' : 'white';
+										ctx.font = 'normal 20px monospace';
+										ctx.textAlign = 'center';
+										ctx.fillText('Paused', ctx.canvas.width/2, ctx.canvas.height/2 + 25);
+									};
+									
+									that.onKeyDown = function (key) {
+										if (key === ENGINE.Keyboard.keys.esc) changeState(states.playingNotPaused);
+									};
+								}
+								
+								PlayingPaused.prototype = that; // states.playing
+								
+								return new PlayingPaused();
+							}());
 						}
 						
 						Playing.prototype = that; // states.main
