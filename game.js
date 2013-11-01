@@ -10,7 +10,10 @@ var GAME = (function () {
 		states.base = new function () {
 			var that = this;
 			
-			that.onEnter = ENGINE.noop;
+			that.onEnter = function () {
+				currentState = states.title;
+				currentState.onEnter();
+			};
 			
 			states.title = (function () {
 				function Title() {
@@ -24,7 +27,7 @@ var GAME = (function () {
 					
 					that.onKeyDown = function (key) {
 						if (key === ENGINE.Keyboard.keys.enter) {
-							currentState = states.serving;
+							currentState = states.main;
 							currentState.onEnter();
 						}
 					};
@@ -104,6 +107,9 @@ var GAME = (function () {
 						spareBalls = TOTAL_BALLS;
 						// vertically center paddles
 						paddles.forEach(function (paddle) { paddle.position.y = ctx.canvas.height/2; });
+						
+						currentState = states.serving;
+						currentState.onEnter();
 					};
 					
 					that.onMouseMove = function (position) {
@@ -168,8 +174,6 @@ var GAME = (function () {
 							var BALL_SPEED = 400;
 							
 							that.onEnter = function () {
-								that.__proto__.onEnter();
-								
 								remaining = DURATION;
 								
 								spareBalls--;
@@ -241,7 +245,7 @@ var GAME = (function () {
 		delegate('draw');
 		
 		that.initialize = function () {
-			currentState = states.title;
+			currentState = states.base;
 			currentState.onEnter();
 		};
 		
