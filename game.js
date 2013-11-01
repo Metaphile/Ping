@@ -7,12 +7,16 @@ var GAME = (function () {
 		var that = this;
 		var states = {}, currentState;
 		
+		function changeState(newState) {
+			currentState = newState;
+			currentState.onEnter();
+		}
+		
 		states.base = new function () {
 			var that = this;
 			
 			that.onEnter = function () {
-				currentState = states.title;
-				currentState.onEnter();
+				changeState(states.title);
 			};
 			
 			states.title = (function () {
@@ -26,10 +30,7 @@ var GAME = (function () {
 					};
 					
 					that.onKeyDown = function (key) {
-						if (key === ENGINE.Keyboard.keys.enter) {
-							currentState = states.main;
-							currentState.onEnter();
-						}
+						if (key === ENGINE.Keyboard.keys.enter) changeState(states.main);
 					};
 					
 					that.update = function (interval) {
@@ -108,8 +109,7 @@ var GAME = (function () {
 						// vertically center paddles
 						paddles.forEach(function (paddle) { paddle.position.y = ctx.canvas.height/2; });
 						
-						currentState = states.serving;
-						currentState.onEnter();
+						changeState(states.serving);
 					};
 					
 					that.onMouseMove = function (position) {
@@ -142,10 +142,7 @@ var GAME = (function () {
 						});
 						
 						// ball-void collisions
-						if (ball.position.x + ball.width/2 < 0 || ball.position.x - ball.width/2 > ctx.canvas.width) {
-							currentState = states.serving;
-							currentState.onEnter();
-						}
+						if (ball.position.x + ball.width/2 < 0 || ball.position.x - ball.width/2 > ctx.canvas.width) changeState(states.serving);
 					};
 					
 					that.draw = function () {
@@ -180,6 +177,8 @@ var GAME = (function () {
 							var BALL_SPEED = 400;
 							
 							that.onEnter = function () {
+								if (spareBalls <= 0) return changeState(states.gameOver);
+								
 								remaining = DURATION;
 								
 								spareBalls--;
@@ -201,8 +200,7 @@ var GAME = (function () {
 									ball.velocity.x = Math.cos(angle * Math.PI/180) * BALL_SPEED;
 									ball.velocity.y = Math.sin(angle * Math.PI/180) * BALL_SPEED;
 									
-									currentState = states.playing;
-									states.playing.onEnter();
+									changeState(states.playing);
 								}
 							};
 							
@@ -232,6 +230,31 @@ var GAME = (function () {
 						
 						return new Playing();
 					}());
+					
+					states.gameOver = (function () {
+						function GameOver() {
+							var that = this;
+							
+							that.onEnter = ENGINE.noop;
+							
+							that.draw = function () {
+								that.__proto__.draw();
+								
+								ctx.textAlign = 'center';
+								ctx.fillStyle = 'white';
+								ctx.font = 'normal 20px monospace';
+								ctx.fillText('Game Over', ctx.canvas.width/2, ctx.canvas.height/2);
+							};
+							
+							that.onKeyDown = function (key) {
+								changeState(states.title);
+							};
+						}
+						
+						GameOver.prototype = that; // states.main
+						
+						return new GameOver();
+					}());
 				}
 				
 				Main.prototype = that; // states.base
@@ -253,8 +276,7 @@ var GAME = (function () {
 		delegate('draw');
 		
 		that.initialize = function () {
-			currentState = states.base;
-			currentState.onEnter();
+			changeState(states.base);
 		};
 		
 		// subscribe to input events
