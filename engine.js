@@ -69,7 +69,7 @@ var ENGINE = (function () {
 		}
 		
 		return streamify;
-	})();
+	}());
 	
 	exports.Keyboard = (function () {
 		var Keyboard = function (domNode) {
@@ -109,7 +109,7 @@ var ENGINE = (function () {
 		];
 		
 		return Keyboard;
-	})();
+	}());
 	
 	exports.Mouse = function (domNode) {
 		var that = this;
@@ -254,4 +254,4 @@ var ENGINE = (function () {
 	};
 	
 	return exports;
-})();
+}());

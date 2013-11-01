@@ -56,7 +56,7 @@ var GAME = (function () {
 				Title.prototype = that; // states.base
 				
 				return new Title();
-			})();
+			}());
 			
 			states.main = (function () {
 				function Main() {
@@ -85,7 +85,7 @@ var GAME = (function () {
 						lowerWall.boundary.bottom = ctx.canvas.height + 9999;
 						entities.push(lowerWall);
 						walls.push(lowerWall);
-					})();
+					}());
 					
 					(function () {
 						var leftPaddle = new ENTITIES.Paddle(ctx);
@@ -97,7 +97,7 @@ var GAME = (function () {
 						rightPaddle.position.x = ctx.canvas.width - rightPaddle.width/2 - 30;
 						entities.push(rightPaddle);
 						paddles.push(rightPaddle);
-					})();
+					}());
 					
 					var ball = new ENTITIES.Ball(ctx);
 					entities.push(ball);
@@ -211,7 +211,7 @@ var GAME = (function () {
 						Serving.prototype = that; // states.main
 						
 						return new Serving();
-					})();
+					}());
 					
 					states.playing = (function () {
 						function Playing() {
@@ -223,7 +223,7 @@ var GAME = (function () {
 						Playing.prototype = that; // states.main
 						
 						return new Playing();
-					})();
+					}());
 				}
 				
 				Main.prototype = that; // states.base
@@ -257,4 +257,4 @@ var GAME = (function () {
 	};
 	
 	return exports;
-})();
+}());

@@ -96,4 +96,4 @@ var ENTITIES = (function () {
 	exports.Ball.prototype = new exports.Entity();
 	
 	return exports;
-})();
+}());
