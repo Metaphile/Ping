@@ -265,6 +265,8 @@ var GAME = (function () {
 									that.onKeyDown = function (key) {
 										if (key === ENGINE.Keyboard.keys.esc) changeState(states.servingNotPaused);
 									};
+									
+									that.onMouseMove = ENGINE.noop;
 								}
 								
 								ServingPaused.prototype = that; // states.serving
@@ -336,6 +338,8 @@ var GAME = (function () {
 									that.onKeyDown = function (key) {
 										if (key === ENGINE.Keyboard.keys.esc) changeState(states.playingNotPaused);
 									};
+									
+									that.onMouseMove = ENGINE.noop;
 								}
 								
 								PlayingPaused.prototype = that; // states.playing
