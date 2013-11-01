@@ -223,6 +223,7 @@ var GAME = (function () {
 									
 									that.onKeyDown = function (key) {
 										if (key === ENGINE.Keyboard.keys.esc) changeState(states.servingPaused);
+										else if (key === ENGINE.Keyboard.keys.enter) remaining = Math.ceil(remaining - 1);
 									};
 								}
 								
