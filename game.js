@@ -275,15 +275,11 @@ var GAME = (function () {
 		delegate('update');
 		delegate('draw');
 		
-		that.initialize = function () {
-			changeState(states.base);
-		};
-		
 		// subscribe to input events
 		input.keyboard.keyDown.then(that.onKeyDown);
 		input.mouse.move.then(that.onMouseMove);
 		
-		that.initialize();
+		changeState(states.base);
 	};
 	
 	return exports;
