@@ -140,6 +140,12 @@ var GAME = (function () {
 							var escapeVector = ball.boundary.test(paddle.boundary);
 							if (escapeVector) ball.onCollision(paddle, escapeVector);
 						});
+						
+						// ball-void collisions
+						if (ball.position.x + ball.width/2 < 0 || ball.position.x - ball.width/2 > ctx.canvas.width) {
+							currentState = states.serving;
+							currentState.onEnter();
+						}
 					};
 					
 					that.draw = function () {
@@ -180,6 +186,8 @@ var GAME = (function () {
 								
 								ball.position.x = ctx.canvas.width/2;
 								ball.position.y = ctx.canvas.height/2;
+								ball.velocity.x = 0;
+								ball.velocity.y = 0;
 							};
 							
 							that.update = function (interval) {

@@ -74,9 +74,7 @@ var ENTITIES = (function () {
 			that.constructor.prototype.update.call(that, interval);
 			
 			// quick and dirty gravity
-			that.velocity.y += 800*interval;
-			
-			if (that.position.x + that.width/2 <= 0) console.log('gone');
+			that.velocity.y += 700*interval;
 		};
 		
 		that.draw = function () {
