@@ -15,6 +15,7 @@ var ENTITIES = (function () {
 		that.boundary.top    = that.position.y - that.height/2;
 		that.boundary.bottom = that.position.y + that.height/2;
 	};
+	exports.Entity.prototype.onCollision = ENGINE.noop;
 	
 	exports.Wall = function (ctx) {
 		var that = this;
@@ -74,7 +75,7 @@ var ENTITIES = (function () {
 			that.constructor.prototype.update.call(that, interval);
 			
 			// quick and dirty gravity
-			that.velocity.y += 700*interval;
+			that.velocity.y += 400*interval;
 		};
 		
 		that.draw = function () {
@@ -90,6 +91,46 @@ var ENTITIES = (function () {
 				that.velocity = that.velocity.reflected(escapeVector.normalized());
 			}
 		};
+	};
+	exports.Ball.prototype = new exports.Entity();
+	
+	exports.Points = function (ctx) {
+		var that = this;
+		
+		that.position = new ENGINE.Vector2();
+		that.velocity = new ENGINE.Vector2();
+		that.boundary = new ENGINE.AABB();
+		
+		// irrelevant
+		that.width = 1;
+		that.height = 1;
+		
+		that.baseValue = 0;
+		that.multiplier = 0;
+		
+		var FADE_DURATION = 1.1, fadeDurationElapsed;
+		
+		that.initialize = function () {
+			fadeDurationElapsed = 0;
+		};
+		
+		that.update = function (interval) {
+			if (fadeDurationElapsed < FADE_DURATION) {
+				fadeDurationElapsed += interval;
+				
+				// float up
+				that.position.y -= 25 * interval;
+			}
+		};
+		
+		that.draw = function () {
+			ctx.textAlign = 'center';
+			ctx.fillStyle = 'rgba(255, 255, 255, ' + (1 - fadeDurationElapsed/FADE_DURATION) + ')';
+			ctx.font = 'bold 18px monospace';
+			ctx.fillText(that.baseValue + '×' + that.multiplier, that.position.x, that.position.y);
+		};
+		
+		that.initialize();
 	};
 	exports.Ball.prototype = new exports.Entity();
 	

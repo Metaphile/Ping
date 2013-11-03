@@ -134,6 +134,10 @@ var ENGINE = (function () {
 			that.y += vector.y;
 		};
 		
+		that.sum = function (vector) {
+			return new exports.Vector2(that.x + vector.x, that.y + vector.y);
+		};
+		
 		that.length = function () {
 			return Math.sqrt(that.x*that.x + that.y*that.y);
 		};

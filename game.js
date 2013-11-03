@@ -103,6 +103,9 @@ var GAME = (function () {
 					var ball = new ENTITIES.Ball(ctx);
 					entities.push(ball);
 					
+					var points = new ENTITIES.Points(ctx);
+					entities.push(points);
+					
 					that.onEnter = function () {
 						score = 0;
 						spareBalls = TOTAL_BALLS;
@@ -138,7 +141,16 @@ var GAME = (function () {
 						// ball-paddle collisions
 						paddles.forEach(function (paddle) {
 							var escapeVector = ball.boundary.test(paddle.boundary);
-							if (escapeVector) ball.onCollision(paddle, escapeVector);
+							if (escapeVector) {
+								ball.onCollision(paddle, escapeVector);
+								
+								points.initialize();
+								points.baseValue = 100;
+								points.multiplier = 1;
+								points.position = ball.position.sum(escapeVector.normalized().scaled(25));
+								
+								score += points.baseValue * points.multiplier;
+							}
 						});
 						
 						// ball-void collisions
