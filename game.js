@@ -181,6 +181,43 @@ var GAME = (function () {
 						entities.forEach(function (entity) { entity.draw(); });
 					};
 					
+					function Paused(notPausedState) {
+						var that = this;
+						
+						var BLINK_INTERVAL = 0.6, elapsed, dimPrompt;
+						
+						that.onEnter = function () {
+							elapsed = 0;
+							dimPrompt = false;
+						};
+						
+						that.update = function (interval) {
+							elapsed += interval;
+							if (elapsed > BLINK_INTERVAL) {
+								dimPrompt = !dimPrompt;
+								elapsed -= BLINK_INTERVAL;
+							}
+						};
+						
+						that.draw = function () {
+							that.__proto__.draw();
+							
+							ctx.fillStyle = 'rgba(0, 0, 0, 0.33)';
+							ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+							
+							ctx.fillStyle = dimPrompt ? 'gray' : 'white';
+							ctx.font = 'normal 20px monospace';
+							ctx.textAlign = 'center';
+							ctx.fillText('Paused', ctx.canvas.width/2, ctx.canvas.height/2 + 25);
+						};
+						
+						that.onKeyDown = function (key) {
+							if (key === ENGINE.Keyboard.keys.esc) changeState(notPausedState);
+						};
+						
+						that.onMouseMove = ENGINE.noop;
+					}
+					
 					states.serving = (function () {
 						function Serving() {
 							var that = this;
@@ -244,48 +281,8 @@ var GAME = (function () {
 								return new ServingNotPaused();
 							}());
 							
-							states.servingPaused = (function () {
-								function ServingPaused() {
-									var that = this;
-									
-									var BLINK_INTERVAL = 0.6, elapsed, dimPrompt;
-									
-									that.onEnter = function () {
-										elapsed = 0;
-										dimPrompt = false;
-									};
-									
-									that.update = function (interval) {
-										elapsed += interval;
-										if (elapsed > BLINK_INTERVAL) {
-											dimPrompt = !dimPrompt;
-											elapsed -= BLINK_INTERVAL;
-										}
-									};
-									
-									that.draw = function () {
-										that.__proto__.draw();
-										
-										ctx.fillStyle = 'rgba(0, 0, 0, 0.33)';
-										ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-										
-										ctx.fillStyle = dimPrompt ? 'gray' : 'white';
-										ctx.font = 'normal 20px monospace';
-										ctx.textAlign = 'center';
-										ctx.fillText('Paused', ctx.canvas.width/2, ctx.canvas.height/2 + 25);
-									};
-									
-									that.onKeyDown = function (key) {
-										if (key === ENGINE.Keyboard.keys.esc) changeState(states.servingNotPaused);
-									};
-									
-									that.onMouseMove = ENGINE.noop;
-								}
-								
-								ServingPaused.prototype = that; // states.serving
-								
-								return new ServingPaused();
-							}());
+							Paused.prototype = that; // states.serving
+							states.servingPaused = new Paused(states.servingNotPaused);
 						}
 						
 						Serving.prototype = that; // states.main
@@ -317,48 +314,8 @@ var GAME = (function () {
 								return new PlayingNotPaused();
 							}());
 							
-							states.playingPaused = (function () {
-								function PlayingPaused() {
-									var that = this;
-									
-									var BLINK_INTERVAL = 0.6, elapsed, dimPrompt;
-									
-									that.onEnter = function () {
-										elapsed = 0;
-										dimPrompt = false;
-									};
-									
-									that.update = function (interval) {
-										elapsed += interval;
-										if (elapsed > BLINK_INTERVAL) {
-											dimPrompt = !dimPrompt;
-											elapsed -= BLINK_INTERVAL;
-										}
-									};
-									
-									that.draw = function () {
-										that.__proto__.draw();
-										
-										ctx.fillStyle = 'rgba(0, 0, 0, 0.33)';
-										ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-										
-										ctx.fillStyle = dimPrompt ? 'gray' : 'white';
-										ctx.font = 'normal 20px monospace';
-										ctx.textAlign = 'center';
-										ctx.fillText('Paused', ctx.canvas.width/2, ctx.canvas.height/2 + 25);
-									};
-									
-									that.onKeyDown = function (key) {
-										if (key === ENGINE.Keyboard.keys.esc) changeState(states.playingNotPaused);
-									};
-									
-									that.onMouseMove = ENGINE.noop;
-								}
-								
-								PlayingPaused.prototype = that; // states.playing
-								
-								return new PlayingPaused();
-							}());
+							Paused.prototype = that; // states.playing
+							states.playingPaused = new Paused(states.playingNotPaused);
 						}
 						
 						Playing.prototype = that; // states.main
