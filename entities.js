@@ -174,7 +174,7 @@ var ENTITIES = (function () {
 			ctx.textAlign = 'center';
 			ctx.fillStyle = 'rgba(255, 255, 255, ' + (1 - fadeDurationElapsed/FADE_DURATION) + ')';
 			ctx.font = 'bold 18px monospace';
-			ctx.fillText(that.baseValue + '×' + that.multiplier, that.position.x, that.position.y);
+			ctx.fillText(that.baseValue.withCommas() + '×' + that.multiplier.withCommas(), that.position.x, that.position.y);
 		};
 		
 		that.initialize();

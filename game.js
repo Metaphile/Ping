@@ -160,7 +160,7 @@ var GAME = (function () {
 						ctx.textAlign = 'center';
 						ctx.fillStyle = 'white';
 						ctx.font = 'bold 30px monospace';
-						ctx.fillText(that.score, ctx.canvas.width/2, 34);
+						ctx.fillText(that.score.withCommas(), ctx.canvas.width/2, 34);
 						
 						// spare balls (heh)
 						

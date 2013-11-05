@@ -30,6 +30,12 @@ var ENGINE = (function () {
 		this.play();
 	};
 	
+	// http://stackoverflow.com/q/2901102/40356
+	// does not work reliably with floats!
+	Number.prototype.withCommas = function numberWithCommas(x) {
+		return this.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+	};
+	
 	exports.noop = function () {};
 	
 	exports.streamify = (function () {
