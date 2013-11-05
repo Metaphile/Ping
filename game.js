@@ -62,7 +62,8 @@ var GAME = (function () {
 			states.main = (function () {
 				function Main() {
 					var that = this;
-					var score, spareBalls;
+					that.score = 0;
+					var spareBalls;
 					var TOTAL_BALLS = 3;
 					var WALL_THICKNESS = 50;
 					
@@ -100,14 +101,14 @@ var GAME = (function () {
 						paddles.push(rightPaddle);
 					}());
 					
-					var ball = new ENTITIES.Ball(ctx);
-					entities.push(ball);
-					
 					var points = new ENTITIES.Points(ctx);
 					entities.push(points);
 					
+					var ball = new ENTITIES.Ball(ctx, points, that);
+					entities.push(ball);
+					
 					that.onEnter = function () {
-						score = 0;
+						that.score = 0;
 						spareBalls = TOTAL_BALLS;
 						// vertically center paddles
 						paddles.forEach(function (paddle) { paddle.position.y = ctx.canvas.height/2; });
@@ -141,13 +142,6 @@ var GAME = (function () {
 							var escapeVector = ball.boundary.test(paddle.boundary);
 							if (escapeVector) {
 								ball.onCollision(paddle, escapeVector);
-								
-								points.initialize();
-								points.baseValue = 100;
-								points.multiplier = 1;
-								points.position = ball.position.sum(escapeVector.normalized().scaled(25));
-								
-								score += points.baseValue * points.multiplier;
 							}
 						});
 						
@@ -166,7 +160,7 @@ var GAME = (function () {
 						ctx.textAlign = 'center';
 						ctx.fillStyle = 'white';
 						ctx.font = 'bold 30px monospace';
-						ctx.fillText(score, ctx.canvas.width/2, 34);
+						ctx.fillText(that.score, ctx.canvas.width/2, 34);
 						
 						// spare balls (heh)
 						

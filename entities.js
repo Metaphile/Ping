@@ -63,7 +63,7 @@ var ENTITIES = (function () {
 	};
 	exports.Paddle.prototype = new exports.Entity();
 	
-	exports.Ball = function (ctx) {
+	exports.Ball = function (ctx, points, game) {
 		var that = this;
 		
 		that.position = new ENGINE.Vector2();
@@ -103,6 +103,7 @@ var ENTITIES = (function () {
 					var t = that.position.y - collidable.position.y;
 					// -1 ... 1
 					t /= (collidable.height + that.height) / 2;
+					var accuracy = 1 - Math.abs(t);
 					// add a bit of randomness
 					t += Math.randRange(-0.1, 0.1);
 					
@@ -111,6 +112,22 @@ var ENTITIES = (function () {
 					var ballSpeed = that.velocity.length();
 					that.velocity.x = Math.cos(bounceAngle * Math.PI/180) * ballSpeed * surfaceNormal.x;
 					that.velocity.y = Math.sin(bounceAngle * Math.PI/180) * ballSpeed;
+					
+					points.initialize();
+					
+					if (accuracy > 0.85) {
+						// bull's eye
+						points.baseValue = 10000;
+					} else if (accuracy < 0.1) {
+						points.baseValue = 100;
+					} else {
+						points.baseValue = Math.round(accuracy * 10) * 100;
+					}
+					
+					points.multiplier += 1;
+					points.position = that.position.sum(surfaceNormal.scaled(25));
+					
+					game.score += points.baseValue * points.multiplier;
 				} else {
 					// bounce normally
 					that.velocity = that.velocity.reflected(surfaceNormal);
