@@ -99,7 +99,15 @@ var ENTITIES = (function () {
 				
 				if (Math.abs(surfaceNormal.x) > Math.abs(surfaceNormal.y)) {
 					// if the surface normal is horizontal, it means the ball hit one of the vertical faces of the paddle (although possibly the back face...)
-					var bounceAngle = -45;
+					
+					var t = that.position.y - collidable.position.y;
+					// -1 ... 1
+					t /= (collidable.height + that.height) / 2;
+					// add a bit of randomness
+					t += Math.randRange(-0.1, 0.1);
+					
+					var bounceAngle = t * 70;
+					
 					var ballSpeed = that.velocity.length();
 					that.velocity.x = Math.cos(bounceAngle * Math.PI/180) * ballSpeed * surfaceNormal.x;
 					that.velocity.y = Math.sin(bounceAngle * Math.PI/180) * ballSpeed;
