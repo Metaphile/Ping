@@ -205,7 +205,7 @@ var GAME = (function () {
 							ctx.fillStyle = dimPrompt ? 'gray' : 'white';
 							ctx.font = 'normal 20px monospace';
 							ctx.textAlign = 'center';
-							ctx.fillText('Paused', ctx.canvas.width/2, ctx.canvas.height/2 + 25);
+							ctx.fillText('Paused', ctx.canvas.width/2, ctx.canvas.height/2 + 35);
 						};
 						
 						that.onKeyDown = function (key) {
@@ -324,7 +324,13 @@ var GAME = (function () {
 						function GameOver() {
 							var that = this;
 							
-							that.onEnter = ENGINE.noop;
+							that.onEnter = function () {
+								// hide ball and prevent it from bouncing around off screen
+								ball.position.x = 1000000;
+								ball.position.y = ctx.canvas.height/2;
+								ball.velocity.x = 0;
+								ball.velocity.y = 0;
+							};
 							
 							that.draw = function () {
 								that.__proto__.draw();
