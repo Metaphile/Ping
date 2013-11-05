@@ -71,6 +71,11 @@ var ENTITIES = (function () {
 		that.boundary = new ENGINE.AABB();
 		that.width = that.height = 20;
 		
+		var beep = new Audio('sounds/boop.mp3');
+		beep.volume = 0.1;
+		var boop = new Audio('sounds/boop.mp3');
+		boop.playbackRate = 0.5;
+		boop.volume = 0.1;
 		var chaChing = new Audio('sounds/cha-ching.mp3');
 		chaChing.volume = 0.1;
 		
@@ -90,6 +95,7 @@ var ENTITIES = (function () {
 		
 		that.onCollision = function (collidable, escapeVector) {
 			if (collidable instanceof exports.Wall) {
+				beep.replay();
 				that.position.add(escapeVector);
 				that.velocity = that.velocity.reflected(escapeVector.normalized());
 			}
@@ -123,8 +129,10 @@ var ENTITIES = (function () {
 						chaChing.replay();
 						points.baseValue = 10000;
 					} else if (accuracy < 0.1) {
+						boop.replay();
 						points.baseValue = 100;
 					} else {
+						boop.replay();
 						points.baseValue = Math.round(accuracy * 10) * 100;
 					}
 					
@@ -134,6 +142,7 @@ var ENTITIES = (function () {
 					game.score += points.baseValue * points.multiplier;
 				} else {
 					// bounce normally
+					boop.replay();
 					that.velocity = that.velocity.reflected(surfaceNormal);
 				}
 			}
