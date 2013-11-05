@@ -119,9 +119,7 @@ var GAME = (function () {
 						paddles.forEach(function (paddle) { paddle.position.y = position.y; });
 					};
 					
-					that.update = function (interval) {
-						entities.forEach(function (entity) { entity.update(interval); });
-						
+					function checkCollisions() {
 						// paddle-wall collisions
 						for (var i = paddles.length - 1; i >= 0; i--) {
 							for (var j = walls.length - 1; j >= 0; j--) {
@@ -155,6 +153,11 @@ var GAME = (function () {
 						
 						// ball-void collisions
 						if (ball.position.x + ball.width/2 < 0 || ball.position.x - ball.width/2 > ctx.canvas.width) changeState(states.serving);
+					}
+					
+					that.update = function (interval) {
+						entities.forEach(function (entity) { entity.update(interval); });
+						checkCollisions();
 					};
 					
 					that.draw = function () {

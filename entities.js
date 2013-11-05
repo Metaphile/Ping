@@ -86,7 +86,12 @@ var ENTITIES = (function () {
 		};
 		
 		that.onCollision = function (collidable, escapeVector) {
-			if (collidable instanceof exports.Wall || collidable instanceof exports.Paddle) {
+			if (collidable instanceof exports.Wall) {
+				that.position.add(escapeVector);
+				that.velocity = that.velocity.reflected(escapeVector.normalized());
+			}
+			
+			if (collidable instanceof exports.Paddle) {
 				that.position.add(escapeVector);
 				that.velocity = that.velocity.reflected(escapeVector.normalized());
 			}
