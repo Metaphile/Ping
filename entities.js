@@ -83,7 +83,7 @@ var ENTITIES = (function () {
 			that.constructor.prototype.update.call(that, interval);
 			
 			// quick and dirty gravity
-			that.velocity.y += 400*interval;
+			// that.velocity.y += 400*interval;
 		};
 		
 		that.draw = function () {
@@ -137,7 +137,9 @@ var ENTITIES = (function () {
 					}
 					
 					points.multiplier += 1;
-					points.position = that.position.sum(surfaceNormal.scaled(25));
+					points.alignment = (surfaceNormal.x >= 0 ? 'left' : 'right');
+					points.position.x = that.position.x;
+					points.position.y = that.position.y;
 					
 					game.score += points.baseValue * points.multiplier;
 				} else {
@@ -163,8 +165,9 @@ var ENTITIES = (function () {
 		
 		that.baseValue = 0;
 		that.multiplier = 0;
+		that.alignment = 'left';
 		
-		var FADE_DURATION = 1.1, fadeDurationElapsed;
+		var FADE_DURATION = 1.2, fadeDurationElapsed;
 		
 		that.initialize = function () {
 			fadeDurationElapsed = 0;
@@ -175,12 +178,12 @@ var ENTITIES = (function () {
 				fadeDurationElapsed += interval;
 				
 				// float up
-				that.position.y -= 25 * interval;
+				that.position.y -= 20 * interval;
 			}
 		};
 		
 		that.draw = function () {
-			ctx.textAlign = 'center';
+			ctx.textAlign = that.alignment;
 			ctx.fillStyle = 'rgba(255, 255, 255, ' + (1 - fadeDurationElapsed/FADE_DURATION) + ')';
 			ctx.font = 'bold 18px monospace';
 			ctx.fillText(that.baseValue.withCommas() + '×' + that.multiplier.withCommas(), that.position.x, that.position.y);
