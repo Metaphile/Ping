@@ -93,7 +93,20 @@ var ENTITIES = (function () {
 			
 			if (collidable instanceof exports.Paddle) {
 				that.position.add(escapeVector);
-				that.velocity = that.velocity.reflected(escapeVector.normalized());
+				
+				// this is a bit cheating, but since we know that the paddle's boundary is an AABB, then the normalized escape vector is also the surface normal
+				var surfaceNormal = escapeVector.normalized();
+				
+				if (Math.abs(surfaceNormal.x) > Math.abs(surfaceNormal.y)) {
+					// if the surface normal is horizontal, it means the ball hit one of the vertical faces of the paddle (although possibly the back face...)
+					var bounceAngle = -45;
+					var ballSpeed = that.velocity.length();
+					that.velocity.x = Math.cos(bounceAngle * Math.PI/180) * ballSpeed * surfaceNormal.x;
+					that.velocity.y = Math.sin(bounceAngle * Math.PI/180) * ballSpeed;
+				} else {
+					// bounce normally
+					that.velocity = that.velocity.reflected(surfaceNormal);
+				}
 			}
 		};
 	};
