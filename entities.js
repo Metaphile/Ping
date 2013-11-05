@@ -71,6 +71,9 @@ var ENTITIES = (function () {
 		that.boundary = new ENGINE.AABB();
 		that.width = that.height = 20;
 		
+		var chaChing = new Audio('sounds/cha-ching.mp3');
+		chaChing.volume = 0.1;
+		
 		that.update = function (interval) {
 			that.constructor.prototype.update.call(that, interval);
 			
@@ -117,6 +120,7 @@ var ENTITIES = (function () {
 					
 					if (accuracy > 0.85) {
 						// bull's eye
+						chaChing.replay();
 						points.baseValue = 10000;
 					} else if (accuracy < 0.1) {
 						points.baseValue = 100;

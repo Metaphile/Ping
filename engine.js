@@ -24,6 +24,12 @@ var ENGINE = (function () {
 		return min + (Math.random() * (max - min));
 	};
 	
+	Audio.prototype.replay = function () {
+		this.pause();
+		this.currentTime = 0;
+		this.play();
+	};
+	
 	exports.noop = function () {};
 	
 	exports.streamify = (function () {
