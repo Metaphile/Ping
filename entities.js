@@ -116,7 +116,7 @@ var ENTITIES = (function () {
 					// add a bit of randomness
 					t += Math.randRange(-0.1, 0.1);
 					
-					var bounceAngle = t * 80;
+					var bounceAngle = t * 45;
 					
 					var ballSpeed = that.velocity.length();
 					that.velocity.x = Math.cos(bounceAngle * Math.PI/180) * ballSpeed * surfaceNormal.x;
@@ -127,7 +127,7 @@ var ENTITIES = (function () {
 					if (accuracy > 0.9) {
 						// bull's eye
 						chaChing.replay();
-						points.baseValue = 5000;
+						points.baseValue = 1000;
 					} else if (accuracy > 0.8) {
 						boop.replay();
 						points.baseValue = 500;
@@ -167,7 +167,7 @@ var ENTITIES = (function () {
 		that.multiplier = 0;
 		that.alignment = 'left';
 		
-		var FADE_DURATION = 1.2, fadeDurationElapsed;
+		var FADE_DURATION = 1.4, fadeDurationElapsed;
 		
 		that.initialize = function () {
 			fadeDurationElapsed = 0;
