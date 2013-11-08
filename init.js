@@ -6,6 +6,7 @@ window.onload = function () {
 	var input = {};
 	input.keyboard = new ENGINE.Keyboard(document);
 	input.mouse = new ENGINE.Mouse(ctx.canvas);
+	input.gamepad = new ENGINE.Gamepad(0);
 	
 	var game = new GAME.Game(input, ctx);
 	
@@ -18,6 +19,7 @@ window.onload = function () {
 		
 		requestAnimationFrame(step);
 		
+		input.gamepad.poll();
 		game.update(interval);
 		
 		ctx.clear();

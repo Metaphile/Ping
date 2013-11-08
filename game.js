@@ -29,9 +29,12 @@ var GAME = (function () {
 						elapsed = 0;
 					};
 					
-					that.onKeyDown = function (key) {
-						if (key === ENGINE.Keyboard.keys.enter) changeState(states.main);
-					};
+					that.onKeyDown = ENGINE.streamify();
+					that.onButtonDown = ENGINE.streamify();
+					
+					that.onKeyDown.then(function (key) { if (key === ENGINE.Keyboard.keys.enter) return key; })
+						.merge(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start || button === ENGINE.Gamepad.buttons.a) return button; }))
+						.then(function () { changeState(states.main); });
 					
 					that.update = function (interval) {
 						elapsed += interval;
@@ -367,12 +370,14 @@ var GAME = (function () {
 		
 		delegate('onKeyDown');
 		delegate('onMouseMove');
+		delegate('onButtonDown');
 		delegate('update');
 		delegate('draw');
 		
 		// subscribe to input events
 		input.keyboard.keyDown.then(that.onKeyDown);
 		input.mouse.move.then(that.onMouseMove);
+		input.gamepad.buttonDown.then(that.onButtonDown);
 		
 		changeState(states.base);
 	};
