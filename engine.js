@@ -71,8 +71,8 @@ var ENGINE = (function () {
 				operator = operator || identity;
 				var merged = streamify();
 				
-				stream.then(function (value) { return operator(value, g.value); });
-				g.then(function (value) { return operator(value, stream.value); });
+				stream.then(function (value) { return operator(value, g.value); }).then(merged);
+				g.then(function (value) { return operator(value, stream.value); }).then(merged);
 				
 				return merged;
 			};
