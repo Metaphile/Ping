@@ -217,9 +217,12 @@ var GAME = (function () {
 							ctx.fillText('Paused', ctx.canvas.width/2, ctx.canvas.height/2 + 35);
 						};
 						
-						that.onKeyDown = function (key) {
-							if (key === ENGINE.Keyboard.keys.esc) changeState(notPausedState);
-						};
+						that.onKeyDown = ENGINE.streamify();
+						that.onButtonDown = ENGINE.streamify();
+						
+						that.onKeyDown.then(function (key) { if (key === ENGINE.Keyboard.keys.esc) return key; })
+							.merge(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start) return button; }))
+							.then(function () { changeState(notPausedState); });
 						
 						that.onMouseMove = ENGINE.noop;
 					}
@@ -276,10 +279,16 @@ var GAME = (function () {
 										}
 									};
 									
-									that.onKeyDown = function (key) {
-										if (key === ENGINE.Keyboard.keys.esc) changeState(states.servingPaused);
-										else if (key === ENGINE.Keyboard.keys.enter) remaining = Math.ceil(remaining - 1);
-									};
+									that.onKeyDown = ENGINE.streamify();
+									that.onButtonDown = ENGINE.streamify();
+									
+									that.onKeyDown.then(function (key) { if (key === ENGINE.Keyboard.keys.esc) return key; })
+										.merge(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start) return button; }))
+										.then(function () { changeState(states.servingPaused); });
+									
+									that.onKeyDown.then(function (key) { if (key === ENGINE.Keyboard.keys.enter) return key; })
+										.merge(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.a) return button; }))
+										.then(function () { remaining = Math.ceil(remaining - 1); });
 								}
 								
 								ServingNotPaused.prototype = that; // states.serving
@@ -310,9 +319,12 @@ var GAME = (function () {
 									
 									that.onEnter = ENGINE.noop;
 									
-									that.onKeyDown = function (key) {
-										if (key === ENGINE.Keyboard.keys.esc) changeState(states.playingPaused);
-									};
+									that.onKeyDown = ENGINE.streamify();
+									that.onButtonDown = ENGINE.streamify();
+									
+									that.onKeyDown.then(function (key) { if (key === ENGINE.Keyboard.keys.esc) return key; })
+										.merge(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start) return button; }))
+										.then(function () { changeState(states.playingPaused); });
 								}
 								
 								PlayingNotPaused.prototype = that; // states.playing
