@@ -123,6 +123,12 @@ var GAME = (function () {
 						paddles.forEach(function (paddle) { paddle.position.y = position.y; });
 					};
 					
+					that.onLeftStick = function (vector) {
+						for (var i = 0, n = paddles.length; i < n; i++) {
+							paddles[i].velocity.y = vector.y * 500;
+						}
+					};
+					
 					function checkCollisions() {
 						// paddle-wall collisions
 						for (var i = paddles.length - 1; i >= 0; i--) {
@@ -371,6 +377,7 @@ var GAME = (function () {
 		delegate('onKeyDown');
 		delegate('onMouseMove');
 		delegate('onButtonDown');
+		delegate('onLeftStick');
 		delegate('update');
 		delegate('draw');
 		
@@ -378,6 +385,7 @@ var GAME = (function () {
 		input.keyboard.keyDown.then(that.onKeyDown);
 		input.mouse.move.then(that.onMouseMove);
 		input.gamepad.buttonDown.then(that.onButtonDown);
+		input.gamepad.leftStick.then(that.onLeftStick);
 		
 		changeState(states.base);
 	};
