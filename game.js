@@ -115,6 +115,7 @@ var GAME = (function () {
 						spareBalls = TOTAL_BALLS;
 						// vertically center paddles
 						paddles.forEach(function (paddle) { paddle.position.y = ctx.canvas.height/2; });
+						ball.enabled = true;
 						
 						changeState(states.serving);
 					};
@@ -346,11 +347,9 @@ var GAME = (function () {
 							var that = this;
 							
 							that.onEnter = function () {
-								// hide ball and prevent it from bouncing around off screen
-								ball.position.x = 1000000;
+								ball.enabled = false;
+								ball.position.x = ctx.canvas.width/2;
 								ball.position.y = ctx.canvas.height/2;
-								ball.velocity.x = 0;
-								ball.velocity.y = 0;
 							};
 							
 							that.draw = function () {
@@ -362,9 +361,14 @@ var GAME = (function () {
 								ctx.fillText('Game Over', ctx.canvas.width/2, ctx.canvas.height/2);
 							};
 							
-							that.onKeyDown = function (key) {
-								changeState(states.title);
-							};
+							that.onKeyDown = ENGINE.streamify();
+							that.onButtonDown = ENGINE.streamify();
+							
+							// press *almost* any key to continue
+							that.onKeyDown.then(function (key) { if (ENGINE.Keyboard.modifiers.indexOf(key) === -1) return key; })
+								// needs work -- includes triggers, D-pad, etc.
+								.merge(that.onButtonDown)
+								.then(function () { changeState(states.title); });
 						}
 						
 						GameOver.prototype = that; // states.main

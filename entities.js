@@ -66,6 +66,8 @@ var ENTITIES = (function () {
 	exports.Ball = function (ctx, points, game) {
 		var that = this;
 		
+		that.enabled = true;
+		
 		that.position = new ENGINE.Vector2();
 		that.velocity = new ENGINE.Vector2();
 		that.boundary = new ENGINE.AABB();
@@ -80,6 +82,8 @@ var ENTITIES = (function () {
 		chaChing.volume = 0.1;
 		
 		that.update = function (interval) {
+			if (!that.enabled) return;
+			
 			that.constructor.prototype.update.call(that, interval);
 			
 			// quick and dirty gravity
@@ -87,6 +91,8 @@ var ENTITIES = (function () {
 		};
 		
 		that.draw = function () {
+			if (!that.enabled) return;
+			
 			ctx.beginPath();
 			ctx.arc(that.position.x, that.position.y, that.width/2, 0, Math.PI * 2);
 			ctx.fillStyle = 'white';
