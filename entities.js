@@ -173,7 +173,7 @@ var ENTITIES = (function () {
 		that.multiplier = 0;
 		that.alignment = 'left';
 		
-		var FADE_DURATION = 1.4, fadeDurationElapsed;
+		var FADE_DURATION = 1.5, fadeDurationElapsed;
 		
 		that.initialize = function () {
 			fadeDurationElapsed = 0;

@@ -132,11 +132,24 @@ var GAME = (function () {
 						for (var i = 0, n = paddles.length; i < n; i++) paddles[i].position.y = position.y;
 					};
 					
-					that.onLeftStick = function (vector) {
-						for (var i = 0, n = paddles.length; i < n; i++) {
-							paddles[i].velocity.y = vector.y * 700;
-						}
-					};
+					that.onLeftStick = ENGINE.streamify();
+					that.onRightStick = ENGINE.streamify();
+					// initialize streams
+					that.onLeftStick({ x: 0, y: 0 });
+					that.onRightStick({ x: 0, y: 0 });
+					
+					that.onLeftStick
+						.merge(that.onRightStick, function (vector1, vector2) {
+							var y = vector1.y + vector2.y;
+							if (y > 1) return 1;
+							else if (y < -1) return -1;
+							else return y;
+						})
+						.then(function (y) {
+							for (var i = 0, n = paddles.length; i < n; i++) {
+								paddles[i].velocity.y = y * 700;
+							}
+						});
 					
 					function checkCollisions() {
 						// paddle-wall collisions
@@ -402,6 +415,7 @@ var GAME = (function () {
 		delegate('onMouseMove');
 		delegate('onButtonDown');
 		delegate('onLeftStick');
+		delegate('onRightStick');
 		delegate('update');
 		delegate('draw');
 		
@@ -410,6 +424,7 @@ var GAME = (function () {
 		input.mouse.move.then(that.onMouseMove);
 		input.gamepad.buttonDown.then(that.onButtonDown);
 		input.gamepad.leftStick.then(that.onLeftStick);
+		input.gamepad.rightStick.then(that.onRightStick);
 		
 		changeState(states.base);
 	};

@@ -47,7 +47,7 @@ var ENGINE = (function () {
 		
 		function streamify(f) {
 			// looks like a stream; don't rewrap
-			if (f && 'merge' in f && 'then' in f && 'value' in f) return f;
+			if (f && 'merge' in f && 'then' in f) return f;
 			
 			f = f || identity;
 			var children = [];
@@ -72,8 +72,7 @@ var ENGINE = (function () {
 			};
 			
 			stream.merge = function (g, operator) {
-				// why doesn't this work?
-				// g = streamify(g);
+				g = streamify(g);
 				operator = operator || identity;
 				var merged = streamify();
 				
@@ -186,6 +185,10 @@ var ENGINE = (function () {
 			that.buttonUp    = exports.streamify();
 			that.leftStick   = exports.streamify();
 			that.rightStick  = exports.streamify();
+			
+			// initialize streams
+			that.leftStick({ x: 0, y: 0 });
+			that.rightStick({ x: 0, y: 0 });
 			
 			that.poll = function () {
 				var state = navigator.webkitGetGamepads()[index];
