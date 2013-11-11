@@ -32,8 +32,16 @@ var GAME = (function () {
 					that.onKeyDown = ENGINE.streamify();
 					that.onButtonDown = ENGINE.streamify();
 					
-					that.onKeyDown.then(function (key) { if (key === ENGINE.Keyboard.keys.enter) return key; })
-						.merge(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start || button === ENGINE.Gamepad.buttons.a) return button; }))
+					// returns a function that returns `item` if `item` is in the list of items supplied to ifOneOf
+					function ifOneOf(/* item1, item2 ... */) {
+						var items = Array.prototype.slice.call(arguments);
+						return function (item) {
+							if (items.indexOf(item) > -1) return item;
+						};
+					}
+					
+					that.onKeyDown.then(ifOneOf(ENGINE.Keyboard.keys.enter))
+						.merge(that.onButtonDown.then(ifOneOf(ENGINE.Gamepad.buttons.start, ENGINE.Gamepad.buttons.a)))
 						.then(function () { changeState(states.main); });
 					
 					that.update = function (interval) {
@@ -114,19 +122,19 @@ var GAME = (function () {
 						that.score = 0;
 						spareBalls = TOTAL_BALLS;
 						// vertically center paddles
-						paddles.forEach(function (paddle) { paddle.position.y = ctx.canvas.height/2; });
+						for (var i = 0, n = paddles.length; i < n; i++) paddles[i].position.y = ctx.canvas.height/2;
 						ball.enabled = true;
 						
 						changeState(states.serving);
 					};
 					
 					that.onMouseMove = function (position) {
-						paddles.forEach(function (paddle) { paddle.position.y = position.y; });
+						for (var i = 0, n = paddles.length; i < n; i++) paddles[i].position.y = position.y;
 					};
 					
 					that.onLeftStick = function (vector) {
 						for (var i = 0, n = paddles.length; i < n; i++) {
-							paddles[i].velocity.y = vector.y * 500;
+							paddles[i].velocity.y = vector.y * 700;
 						}
 					};
 					
@@ -160,7 +168,7 @@ var GAME = (function () {
 					}
 					
 					that.update = function (interval) {
-						entities.forEach(function (entity) { entity.update(interval); });
+						for (var i = 0, n = entities.length; i < n; i++) entities[i].update(interval);
 						checkCollisions();
 					};
 					
@@ -185,7 +193,7 @@ var GAME = (function () {
 							ctx.fill();
 						}
 						
-						entities.forEach(function (entity) { entity.draw(); });
+						for (var i = 0, n = entities.length; i < n; i++) entities[i].draw();
 					};
 					
 					function Paused(notPausedState) {

@@ -52,7 +52,7 @@ var ENGINE = (function () {
 				var value = f.apply(f, arguments);
 				
 				if (typeof value !== 'undefined') {
-					children.forEach(function (child) { child(value); });
+					for (var i = 0, n = children.length; i < n; i++) children[i](value);
 					
 					// save for later
 					stream.value = value;
@@ -62,12 +62,14 @@ var ENGINE = (function () {
 			}
 			
 			stream.then = function (g) {
-				var g = streamify(g);
+				g = streamify(g);
 				children.push(g);
 				return g;
 			};
 			
 			stream.merge = function (g, operator) {
+				// why doesn't this work?
+				// g = streamify(g);
 				operator = operator || identity;
 				var merged = streamify();
 				
