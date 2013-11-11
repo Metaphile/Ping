@@ -1,0 +1,8 @@
+body {
+	font: 10pt sans-serif;
+}
+
+#canvas1 {
+	background: black;
+	border: 1px solid black;
+}
