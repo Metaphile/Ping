@@ -25,6 +25,10 @@ var ENGINE = (function () {
 	};
 	
 	Audio.prototype.replay = function () {
+		// sooo temp
+		// don't play sounds if mute is checked
+		if (document.getElementById('mute').checked) return;
+		
 		this.pause();
 		this.currentTime = 0;
 		this.play();
