@@ -116,11 +116,11 @@ var GAME = (function () {
 					var points = new ENTITIES.Points(ctx);
 					entities.push(points);
 					
-					var ball = new ENTITIES.Ball(ctx, points, that);
+					var ball = new ENTITIES.Ball(ctx);
 					entities.push(ball);
 					
 					(function () {
-						var token = new ENTITIES.Token(ctx);
+						var token = new ENTITIES.Token(ctx, points, that);
 						token.position.x = ctx.canvas.width/2;
 						token.position.y = ctx.canvas.height/2;
 						tokens.push(token);

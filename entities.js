@@ -63,7 +63,7 @@ var ENTITIES = (function () {
 	};
 	exports.Paddle.prototype = new exports.Entity();
 	
-	exports.Ball = function (ctx, points, game) {
+	exports.Ball = function (ctx) {
 		var that = this;
 		
 		that.enabled = true;
@@ -78,8 +78,6 @@ var ENTITIES = (function () {
 		var boop = new Audio('sounds/boop.mp3');
 		boop.playbackRate = 0.5;
 		boop.volume = 0.1;
-		var chaChing = new Audio('sounds/cha-ching.mp3');
-		chaChing.volume = 0.1;
 		
 		that.update = function (interval) {
 			if (!that.enabled) return;
@@ -109,6 +107,8 @@ var ENTITIES = (function () {
 			if (collidable instanceof exports.Paddle) {
 				that.position.add(escapeVector);
 				
+				boop.replay();
+				
 				// this is a bit cheating, but since we know that the paddle's boundary is an AABB, then the normalized escape vector is also the surface normal
 				var surfaceNormal = escapeVector.normalized();
 				
@@ -122,32 +122,11 @@ var ENTITIES = (function () {
 					// add a bit of randomness
 					t += Math.randRange(-0.1, 0.1);
 					
-					var bounceAngle = t * 45;
+					var bounceAngle = t * 60;
 					
 					var ballSpeed = that.velocity.length();
 					that.velocity.x = Math.cos(bounceAngle * Math.PI/180) * ballSpeed * surfaceNormal.x;
 					that.velocity.y = Math.sin(bounceAngle * Math.PI/180) * ballSpeed;
-					
-					points.initialize();
-					
-					if (accuracy > 0.9) {
-						// bull's eye
-						chaChing.replay();
-						points.baseValue = 1000;
-					} else if (accuracy > 0.8) {
-						boop.replay();
-						points.baseValue = 500;
-					} else {
-						boop.replay();
-						points.baseValue = 100;
-					}
-					
-					points.multiplier += 1;
-					points.alignment = (surfaceNormal.x >= 0 ? 'left' : 'right');
-					points.position.x = that.position.x;
-					points.position.y = that.position.y;
-					
-					game.score += points.baseValue * points.multiplier;
 				} else {
 					// bounce normally
 					boop.replay();
@@ -199,7 +178,7 @@ var ENTITIES = (function () {
 	};
 	exports.Ball.prototype = new exports.Entity();
 	
-	exports.Token = function (ctx) {
+	exports.Token = function (ctx, points, game) {
 		var that = this;
 		
 		that.position = new ENGINE.Vector2();
@@ -214,15 +193,29 @@ var ENTITIES = (function () {
 		sprite.width *= 4;
 		sprite.height = sprite.width/aspectRatio;
 		
+		var chaChing = new Audio('sounds/cha-ching.mp3');
+		chaChing.volume = 0.1;
+		
 		that.draw = function () {
 			ctx.drawImage(sprite, that.position.x - sprite.width/2, that.position.y - sprite.height/2, sprite.width, sprite.height);
 		};
 		
 		that.onCollision = function (collidable) {
 			if (collidable instanceof exports.Ball) {
+				chaChing.replay();
+				
+				points.initialize();
+				points.baseValue = 100;
+				points.multiplier = 1;
+				points.alignment = 'center';
+				points.position.x = that.position.x;
+				points.position.y = that.position.y;
+				
+				game.score += points.baseValue * points.multiplier;
+				
 				// temp!! move to random location
-				that.position.x = Math.randRange(50, ctx.canvas.width-50);
-				that.position.y = Math.randRange(50, ctx.canvas.height-50);
+				that.position.x = Math.randRange(100, ctx.canvas.width-100);
+				that.position.y = Math.randRange(100, ctx.canvas.height-100);
 			}
 		};
 	};
