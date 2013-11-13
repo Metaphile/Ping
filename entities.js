@@ -210,9 +210,12 @@ var ENTITIES = (function () {
 		
 		var sprite = new Image();
 		sprite.src = 'images/cherries.png';
+		var aspectRatio = sprite.width/sprite.height;
+		sprite.width *= 4;
+		sprite.height = sprite.width/aspectRatio;
 		
 		that.draw = function () {
-			ctx.drawImage(sprite, that.position.x - sprite.width/2, that.position.y - sprite.height/2);
+			ctx.drawImage(sprite, that.position.x - sprite.width/2, that.position.y - sprite.height/2, sprite.width, sprite.height);
 		};
 	};
 	exports.Token.prototype = new exports.Entity();

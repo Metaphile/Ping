@@ -2,6 +2,8 @@ window.onload = function () {
 	'use strict';
 	
 	var ctx = document.getElementById('canvas1').getContext('2d');
+	// retro!
+	ctx.imageSmoothingEnabled = false;
 	
 	var input = {};
 	input.keyboard = new ENGINE.Keyboard(document);
