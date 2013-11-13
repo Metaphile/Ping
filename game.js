@@ -81,6 +81,7 @@ var GAME = (function () {
 					var entities = [];
 					var walls = [];
 					var paddles = [];
+					var tokens = [];
 					
 					(function () {
 						var upperWall = new ENTITIES.Wall(ctx);
@@ -122,6 +123,7 @@ var GAME = (function () {
 						var token = new ENTITIES.Token(ctx);
 						token.position.x = ctx.canvas.width/2;
 						token.position.y = ctx.canvas.height/2;
+						tokens.push(token);
 						entities.push(token);
 					}());
 					
@@ -185,6 +187,15 @@ var GAME = (function () {
 						
 						// ball-void collisions
 						if (ball.position.x + ball.width/2 < 0 || ball.position.x - ball.width/2 > ctx.canvas.width) changeState(states.serving);
+						
+						// ball-token collisions
+						for (var i = 0, n = tokens.length; i < n; i++) {
+							var escapeVector = tokens[i].boundary.test(ball.boundary);
+							if (escapeVector) {
+								tokens[i].onCollision(ball, escapeVector);
+								ball.onCollision(tokens[i], escapeVector.inverse());
+							}
+						}
 					}
 					
 					that.update = function (interval) {

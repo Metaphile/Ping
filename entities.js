@@ -217,6 +217,14 @@ var ENTITIES = (function () {
 		that.draw = function () {
 			ctx.drawImage(sprite, that.position.x - sprite.width/2, that.position.y - sprite.height/2, sprite.width, sprite.height);
 		};
+		
+		that.onCollision = function (collidable) {
+			if (collidable instanceof exports.Ball) {
+				// temp!! move to random location
+				that.position.x = Math.randRange(50, ctx.canvas.width-50);
+				that.position.y = Math.randRange(50, ctx.canvas.height-50);
+			}
+		};
 	};
 	exports.Token.prototype = new exports.Entity();
 	
