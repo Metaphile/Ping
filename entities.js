@@ -10,6 +10,11 @@ var ENTITIES = (function () {
 		that.position.x += that.velocity.x * interval;
 		that.position.y += that.velocity.y * interval;
 		
+		that.updateBoundary();
+	};
+	exports.Entity.prototype.updateBoundary = function () {
+		var that = this;
+		
 		that.boundary.left   = that.position.x - that.width/2;
 		that.boundary.right  = that.position.x + that.width/2;
 		that.boundary.top    = that.position.y - that.height/2;
@@ -53,11 +58,13 @@ var ENTITIES = (function () {
 		
 		that.moveTo = function (y) {
 			that.position.y = y;
+			that.updateBoundary();
 		};
 		
 		that.onCollision = function (collidable, escapeVector) {
 			if (collidable instanceof exports.Wall) {
 				that.position.add(escapeVector);
+				that.updateBoundary();
 			}
 		};
 	};
@@ -101,11 +108,13 @@ var ENTITIES = (function () {
 			if (collidable instanceof exports.Wall) {
 				beep.replay();
 				that.position.add(escapeVector);
+				that.updateBoundary();
 				that.velocity = that.velocity.reflected(escapeVector.normalized());
 			}
 			
 			if (collidable instanceof exports.Paddle) {
 				that.position.add(escapeVector);
+				that.updateBoundary();
 				
 				boop.replay();
 				
