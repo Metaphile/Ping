@@ -205,6 +205,17 @@ var ENTITIES = (function () {
 		var chaChing = new Audio('sounds/cha-ching.mp3');
 		chaChing.volume = 0.1;
 		
+		var t = Math.randRange(0, Math.PI*2);
+		
+		that.update = function (interval) {
+			// bob slightly
+			t += 5 * interval;
+			while (t > Math.PI*2) t -= Math.PI*2;
+			that.position.y += Math.sin(t) * 0.2;
+			
+			that.constructor.prototype.update.call(that, interval);
+		};
+		
 		that.draw = function () {
 			ctx.drawImage(sprite, that.position.x - sprite.width/2, that.position.y - sprite.height/2, sprite.width, sprite.height);
 		};
