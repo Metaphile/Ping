@@ -122,7 +122,7 @@ var ENTITIES = (function () {
 					// add a bit of randomness
 					t += Math.randRange(-0.1, 0.1);
 					
-					var bounceAngle = t * 60;
+					var bounceAngle = t * 70;
 					
 					var ballSpeed = that.velocity.length();
 					that.velocity.x = Math.cos(bounceAngle * Math.PI/180) * ballSpeed * surfaceNormal.x;
@@ -190,7 +190,7 @@ var ENTITIES = (function () {
 		var sprite = new Image();
 		sprite.src = 'images/cherries.png';
 		var aspectRatio = sprite.width/sprite.height;
-		sprite.width *= 4;
+		sprite.width *= 3;
 		sprite.height = sprite.width/aspectRatio;
 		
 		var chaChing = new Audio('sounds/cha-ching.mp3');

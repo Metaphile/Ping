@@ -120,11 +120,13 @@ var GAME = (function () {
 					entities.push(ball);
 					
 					(function () {
-						var token = new ENTITIES.Token(ctx, points, that);
-						token.position.x = ctx.canvas.width/2;
-						token.position.y = ctx.canvas.height/2;
-						tokens.push(token);
-						entities.push(token);
+						for (var i = 0; i < 3; i++) {
+							var token = new ENTITIES.Token(ctx, points, that);
+							token.position.x = Math.randRange(100, ctx.canvas.width-100);
+							token.position.y = Math.randRange(100, ctx.canvas.height-100);
+							tokens.push(token);
+							entities.push(token);
+						}
 					}());
 					
 					that.onEnter = function () {
