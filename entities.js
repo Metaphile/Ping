@@ -199,5 +199,23 @@ var ENTITIES = (function () {
 	};
 	exports.Ball.prototype = new exports.Entity();
 	
+	exports.Token = function (ctx) {
+		var that = this;
+		
+		that.position = new ENGINE.Vector2();
+		that.velocity = new ENGINE.Vector2();
+		that.boundary = new ENGINE.AABB();
+		that.width  = 50;
+		that.height = 50;
+		
+		var sprite = new Image();
+		sprite.src = 'images/cherries.png';
+		
+		that.draw = function () {
+			ctx.drawImage(sprite, that.position.x - sprite.width/2, that.position.y - sprite.height/2);
+		};
+	};
+	exports.Token.prototype = new exports.Entity();
+	
 	return exports;
 }());

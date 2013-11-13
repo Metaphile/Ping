@@ -118,6 +118,13 @@ var GAME = (function () {
 					var ball = new ENTITIES.Ball(ctx, points, that);
 					entities.push(ball);
 					
+					(function () {
+						var token = new ENTITIES.Token(ctx);
+						token.position.x = ctx.canvas.width/2;
+						token.position.y = ctx.canvas.height/2;
+						entities.push(token);
+					}());
+					
 					that.onEnter = function () {
 						that.score = 0;
 						spareBalls = TOTAL_BALLS;
