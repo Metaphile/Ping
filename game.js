@@ -75,6 +75,8 @@ var GAME = (function () {
 					var that = this;
 					that.score = 0;
 					that.multiplier = 1;
+					var multiplierResetInterval = 5;
+					var multiplierResetIntervalRemaining = 0;
 					var spareBalls;
 					var TOTAL_BALLS = 3;
 					var WALL_THICKNESS = 50;
@@ -138,7 +140,7 @@ var GAME = (function () {
 						var sprite = new Image();
 						sprite.src = 'images/bananas.png';
 						
-						for (var i = 0; i < 1; i++) {
+						for (var i = 0; i < 2; i++) {
 							var bananas = new ENTITIES.Token(ctx, sprite, 500, points, that);
 							bananas.position.x = Math.randRange(100, ctx.canvas.width-100);
 							bananas.position.y = Math.randRange(100, ctx.canvas.height-100);
@@ -149,6 +151,7 @@ var GAME = (function () {
 					
 					that.onEnter = function () {
 						that.score = 0;
+						multiplierResetIntervalRemaining = 0;
 						that.multiplier = 1;
 						spareBalls = TOTAL_BALLS;
 						// vertically center paddles
@@ -207,7 +210,11 @@ var GAME = (function () {
 						});
 						
 						// ball-void collisions
-						if (ball.position.x + ball.width/2 < 0 || ball.position.x - ball.width/2 > ctx.canvas.width) changeState(states.serving);
+						if (ball.position.x + ball.width/2 < 0 || ball.position.x - ball.width/2 > ctx.canvas.width) {
+							multiplierResetIntervalRemaining = 0;
+							that.multiplier = 1;
+							changeState(states.serving);
+						}
 						
 						// ball-token collisions
 						for (var i = 0, n = tokens.length; i < n; i++) {
@@ -215,7 +222,9 @@ var GAME = (function () {
 							if (escapeVector) {
 								tokens[i].onCollision(ball, escapeVector);
 								ball.onCollision(tokens[i], escapeVector.inverse());
+								
 								that.multiplier += 1;
+								multiplierResetIntervalRemaining = multiplierResetInterval;
 							}
 						}
 					}
@@ -223,6 +232,9 @@ var GAME = (function () {
 					that.update = function (interval) {
 						for (var i = 0, n = entities.length; i < n; i++) entities[i].update(interval);
 						checkCollisions();
+						
+						multiplierResetIntervalRemaining = Math.max(multiplierResetIntervalRemaining - interval, 0);
+						if (multiplierResetIntervalRemaining === 0) that.multiplier = 1;
 					};
 					
 					that.draw = function () {
@@ -236,15 +248,14 @@ var GAME = (function () {
 						ctx.fillStyle = 'white';
 						ctx.fillText(scoreText, ctx.canvas.width/2, 34);
 						
-						ctx.lineWidth = 3;
-						ctx.beginPath();
-						ctx.rect(100 + ctx.lineWidth/2, WALL_THICKNESS/2 - 16/2 + ctx.lineWidth/2, 128 - ctx.lineWidth, 16 - ctx.lineWidth);
-						ctx.stroke();
+						ctx.fillStyle = 'gray';
+						ctx.fillRect(100, WALL_THICKNESS/2 - 16/2, 128, 16);
 						ctx.fillStyle = 'white';
-						ctx.fillRect(100, WALL_THICKNESS/2 - 16/2, 96, 16);
+						ctx.fillRect(100, WALL_THICKNESS/2 - 16/2, multiplierResetIntervalRemaining/multiplierResetInterval * 128, 16);
 						
 						ctx.textAlign = 'left';
 						ctx.font = 'normal 20px monospace';
+						ctx.fillStyle = 'white';
 						ctx.fillText('×' + that.multiplier, 232, 32);
 						
 						// spare balls (heh)

@@ -48,13 +48,11 @@ var ENTITIES = (function () {
 		that.position = new ENGINE.Vector2();
 		that.velocity = new ENGINE.Vector2();
 		that.boundary = new ENGINE.AABB();
-		that.width = 15, that.height = 80;
+		that.width = 8, that.height = 80;
 		
 		that.draw = function () {
-			ctx.beginPath();
-			ctx.lineWidth = 3;
-			ctx.rect(that.position.x - that.width/2 + ctx.lineWidth/2, that.position.y - that.height/2 + ctx.lineWidth/2, that.width - ctx.lineWidth, that.height - ctx.lineWidth);
-			ctx.stroke();
+			ctx.fillStyle = 'white';
+			ctx.fillRect(that.position.x - that.width/2, that.position.y - that.height/2, that.width, that.height);
 		};
 		
 		that.moveTo = function (y) {
