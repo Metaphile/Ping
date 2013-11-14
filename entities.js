@@ -183,9 +183,8 @@ var ENTITIES = (function () {
 			ctx.textAlign = that.alignment;
 			ctx.font = 'bold 18px monospace';
 			
-			ctx.lineWidth = 1;
-			ctx.strokeStyle = 'rgba(255, 255, 255, ' + opacity + ')';
-			ctx.strokeText(text, that.position.x+1, that.position.y+1);
+			ctx.fillStyle = 'rgba(255, 255, 255, ' + opacity + ')';
+			ctx.fillText(text, that.position.x+1, that.position.y+1);
 			
 			ctx.fillStyle = 'rgba(255, 225, 0, ' + opacity + ')';
 			ctx.fillText(text, that.position.x, that.position.y);

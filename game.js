@@ -209,10 +209,13 @@ var GAME = (function () {
 					that.draw = function () {
 						// score
 						
+						var scoreText = that.score.withCommas();
 						ctx.textAlign = 'center';
-						ctx.fillStyle = 'white';
 						ctx.font = 'bold 30px monospace';
-						ctx.fillText(that.score.withCommas(), ctx.canvas.width/2, 34);
+						ctx.fillStyle = 'white';
+						ctx.fillText(scoreText, ctx.canvas.width/2 + 1, 34 + 1);
+						ctx.fillStyle = 'yellow';
+						ctx.fillText(scoreText, ctx.canvas.width/2, 34);
 						
 						// spare balls (heh)
 						
