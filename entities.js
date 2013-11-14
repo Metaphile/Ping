@@ -241,5 +241,42 @@ var ENTITIES = (function () {
 	};
 	exports.Token.prototype = new exports.Entity();
 	
+	exports.EntityPool = function (createEntity, count) {
+		var that = this;
+		
+		var entities = [];
+		var active = [];
+		var lastChecked = count - 1;
+		
+		while (count--) {
+			entities.push(createEntity());
+			active.push(false);
+		}
+		
+		that.forEach = function (visit) {
+			for (var i = 0, n = entities.length; i < n; i++) {
+				if (active[i]) visit(entities[i]);
+			}
+		};
+		
+		that.getNext = function () {
+			for (var i = 0, n = entities.length; i < n; i++) {
+				lastChecked++;
+				// wrap
+				if (lastChecked >= n) lastChecked = 0;
+				
+				if (!active[lastChecked]) {
+					active[lastChecked] = true;
+					return entities[lastChecked];
+				}
+			}
+		};
+		
+		that.putBack = function (entity) {
+			var i = entities.indexOf(entity);
+			if (i > -1) active[i] = false;
+		};
+	};
+	
 	return exports;
 }());
