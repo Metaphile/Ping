@@ -74,6 +74,7 @@ var GAME = (function () {
 				function Main() {
 					var that = this;
 					that.score = 0;
+					that.multiplier = 1;
 					var spareBalls;
 					var TOTAL_BALLS = 3;
 					var WALL_THICKNESS = 50;
@@ -232,6 +233,16 @@ var GAME = (function () {
 						ctx.fillText(scoreText, ctx.canvas.width/2 + 2, 34 + 2);
 						ctx.fillStyle = 'white';
 						ctx.fillText(scoreText, ctx.canvas.width/2, 34);
+						
+						ctx.lineWidth = 2;
+						ctx.beginPath();
+						ctx.rect(100, WALL_THICKNESS/2 - 16/2, 128, 16);
+						ctx.stroke();
+						ctx.fillRect(100, WALL_THICKNESS/2 - 16/2, 96, 16);
+						
+						ctx.textAlign = 'left';
+						ctx.font = 'normal 20px monospace';
+						ctx.fillText('×' + that.multiplier, 233, 32);
 						
 						// spare balls (heh)
 						
