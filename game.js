@@ -119,6 +119,7 @@ var GAME = (function () {
 					var ball = new ENTITIES.Ball(ctx);
 					entities.push(ball);
 					
+					// todo: put tokens behind points
 					(function () {
 						for (var i = 0; i < 3; i++) {
 							var token = new ENTITIES.Token(ctx, points, that);

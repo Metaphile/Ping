@@ -177,10 +177,18 @@ var ENTITIES = (function () {
 		};
 		
 		that.draw = function () {
+			var text = that.baseValue.withCommas() + '×' + that.multiplier.withCommas();
+			var opacity = 1 - fadeDurationElapsed/FADE_DURATION;
+			
 			ctx.textAlign = that.alignment;
-			ctx.fillStyle = 'rgba(255, 255, 255, ' + (1 - fadeDurationElapsed/FADE_DURATION) + ')';
 			ctx.font = 'bold 18px monospace';
-			ctx.fillText(that.baseValue.withCommas() + '×' + that.multiplier.withCommas(), that.position.x, that.position.y);
+			
+			ctx.lineWidth = 1;
+			ctx.strokeStyle = 'rgba(255, 255, 255, ' + opacity + ')';
+			ctx.strokeText(text, that.position.x+1, that.position.y+1);
+			
+			ctx.fillStyle = 'rgba(255, 225, 0, ' + opacity + ')';
+			ctx.fillText(text, that.position.x, that.position.y);
 		};
 		
 		that.initialize();
