@@ -234,10 +234,11 @@ var GAME = (function () {
 						ctx.fillStyle = 'white';
 						ctx.fillText(scoreText, ctx.canvas.width/2, 34);
 						
-						ctx.lineWidth = 2;
+						ctx.lineWidth = 3;
 						ctx.beginPath();
-						ctx.rect(100, WALL_THICKNESS/2 - 16/2, 128, 16);
+						ctx.rect(100 + ctx.lineWidth/2, WALL_THICKNESS/2 - 16/2 + ctx.lineWidth/2, 128 - ctx.lineWidth, 16 - ctx.lineWidth);
 						ctx.stroke();
+						ctx.fillStyle = 'white';
 						ctx.fillRect(100, WALL_THICKNESS/2 - 16/2, 96, 16);
 						
 						ctx.textAlign = 'left';

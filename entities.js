@@ -30,13 +30,13 @@ var ENTITIES = (function () {
 		
 		that.draw = function () {
 			ctx.beginPath();
+			ctx.lineWidth = 3;
 			ctx.rect(
-				that.boundary.left,
-				that.boundary.top,
-				that.boundary.right - that.boundary.left,
-				that.boundary.bottom - that.boundary.top);
+				that.boundary.left + ctx.lineWidth/2,
+				that.boundary.top + ctx.lineWidth/2,
+				that.boundary.right - that.boundary.left - ctx.lineWidth,
+				that.boundary.bottom - that.boundary.top - ctx.lineWidth);
 			
-			ctx.lineWidth = 2;
 			ctx.strokeStyle = 'white';
 			ctx.stroke();
 		};
@@ -48,12 +48,13 @@ var ENTITIES = (function () {
 		that.position = new ENGINE.Vector2();
 		that.velocity = new ENGINE.Vector2();
 		that.boundary = new ENGINE.AABB();
-		that.width = 8, that.height = 80;
+		that.width = 15, that.height = 80;
 		
 		that.draw = function () {
 			ctx.beginPath();
-			ctx.fillStyle = 'white';
-			ctx.fillRect(that.position.x - that.width/2, that.position.y - that.height/2, that.width, that.height);
+			ctx.lineWidth = 3;
+			ctx.rect(that.position.x - that.width/2 + ctx.lineWidth/2, that.position.y - that.height/2 + ctx.lineWidth/2, that.width - ctx.lineWidth, that.height - ctx.lineWidth);
+			ctx.stroke();
 		};
 		
 		that.moveTo = function (y) {
@@ -79,7 +80,7 @@ var ENTITIES = (function () {
 		that.position = new ENGINE.Vector2();
 		that.velocity = new ENGINE.Vector2();
 		that.boundary = new ENGINE.AABB();
-		that.width = that.height = 20;
+		that.width = that.height = 22;
 		
 		var beep = new Audio('sounds/boop.mp3');
 		beep.volume = 0.1;
@@ -185,15 +186,12 @@ var ENTITIES = (function () {
 			ctx.font = 'bold 18px monospace';
 			
 			ctx.fillStyle = 'rgba(255, 255, 255, ' + opacity + ')';
-			ctx.fillText(text, that.position.x+1, that.position.y+1);
-			
-			ctx.fillStyle = 'rgba(255, 255, 0, ' + opacity + ')';
 			ctx.fillText(text, that.position.x, that.position.y);
 		};
 		
 		that.initialize();
 	};
-	exports.Ball.prototype = new exports.Entity();
+	exports.Points.prototype = new exports.Entity();
 	
 	exports.Token = function (ctx, sprite, pointValue, points, game) {
 		var that = this;
