@@ -163,7 +163,7 @@ var ENTITIES = (function () {
 		that.multiplier = 0;
 		that.alignment = 'left';
 		
-		var FADE_DURATION = 1.5, fadeDurationElapsed;
+		var FADE_DURATION = 1.6, fadeDurationElapsed;
 		
 		that.initialize = function () {
 			fadeDurationElapsed = 0;
@@ -228,13 +228,12 @@ var ENTITIES = (function () {
 				chaChing.replay();
 				
 				points.initialize();
-				points.baseValue = pointValue;
-				points.multiplier = 1;
+				points.baseValue = pointValue * game.multiplier;
 				points.alignment = 'center';
 				points.position.x = that.position.x;
 				points.position.y = that.position.y;
 				
-				game.score += points.baseValue * points.multiplier;
+				game.score += pointValue * game.multiplier;
 				
 				// temp!! move to random location
 				that.position.x = Math.randRange(100, ctx.canvas.width-100);

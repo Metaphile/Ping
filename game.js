@@ -149,6 +149,7 @@ var GAME = (function () {
 					
 					that.onEnter = function () {
 						that.score = 0;
+						that.multiplier = 1;
 						spareBalls = TOTAL_BALLS;
 						// vertically center paddles
 						for (var i = 0, n = paddles.length; i < n; i++) paddles[i].position.y = ctx.canvas.height/2;
@@ -214,6 +215,7 @@ var GAME = (function () {
 							if (escapeVector) {
 								tokens[i].onCollision(ball, escapeVector);
 								ball.onCollision(tokens[i], escapeVector.inverse());
+								that.multiplier += 1;
 							}
 						}
 					}
@@ -243,7 +245,7 @@ var GAME = (function () {
 						
 						ctx.textAlign = 'left';
 						ctx.font = 'normal 20px monospace';
-						ctx.fillText('×' + that.multiplier, 233, 32);
+						ctx.fillText('×' + that.multiplier, 232, 32);
 						
 						// spare balls (heh)
 						
