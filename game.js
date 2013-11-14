@@ -121,12 +121,28 @@ var GAME = (function () {
 					
 					// todo: put tokens behind points
 					(function () {
+						var sprite = new Image();
+						sprite.src = 'images/cherries.png';
+						
 						for (var i = 0; i < 3; i++) {
-							var token = new ENTITIES.Token(ctx, points, that);
-							token.position.x = Math.randRange(100, ctx.canvas.width-100);
-							token.position.y = Math.randRange(100, ctx.canvas.height-100);
-							tokens.push(token);
-							entities.push(token);
+							var cherries = new ENTITIES.Token(ctx, sprite, 100, points, that);
+							cherries.position.x = Math.randRange(100, ctx.canvas.width-100);
+							cherries.position.y = Math.randRange(100, ctx.canvas.height-100);
+							tokens.push(cherries);
+							entities.push(cherries);
+						}
+					}());
+					
+					(function () {
+						var sprite = new Image();
+						sprite.src = 'images/bananas.png';
+						
+						for (var i = 0; i < 1; i++) {
+							var bananas = new ENTITIES.Token(ctx, sprite, 500, points, that);
+							bananas.position.x = Math.randRange(100, ctx.canvas.width-100);
+							bananas.position.y = Math.randRange(100, ctx.canvas.height-100);
+							tokens.push(bananas);
+							entities.push(bananas);
 						}
 					}());
 					
@@ -209,12 +225,12 @@ var GAME = (function () {
 					that.draw = function () {
 						// score
 						
-						var scoreText = that.score.withCommas();
+						var scoreText = '$' + that.score.withCommas();
 						ctx.textAlign = 'center';
 						ctx.font = 'bold 30px monospace';
+						ctx.fillStyle = 'gray';
+						ctx.fillText(scoreText, ctx.canvas.width/2 + 2, 34 + 2);
 						ctx.fillStyle = 'white';
-						ctx.fillText(scoreText, ctx.canvas.width/2 + 1, 34 + 1);
-						ctx.fillStyle = 'yellow';
 						ctx.fillText(scoreText, ctx.canvas.width/2, 34);
 						
 						// spare balls (heh)

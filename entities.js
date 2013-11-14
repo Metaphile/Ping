@@ -73,6 +73,7 @@ var ENTITIES = (function () {
 	exports.Ball = function (ctx) {
 		var that = this;
 		
+		// disabled ball can still collide with tokens :-(
 		that.enabled = true;
 		
 		that.position = new ENGINE.Vector2();
@@ -177,7 +178,7 @@ var ENTITIES = (function () {
 		};
 		
 		that.draw = function () {
-			var text = that.baseValue.withCommas() + '×' + that.multiplier.withCommas();
+			var text = '$' + that.baseValue.withCommas();
 			var opacity = 1 - fadeDurationElapsed/FADE_DURATION;
 			
 			ctx.textAlign = that.alignment;
@@ -186,7 +187,7 @@ var ENTITIES = (function () {
 			ctx.fillStyle = 'rgba(255, 255, 255, ' + opacity + ')';
 			ctx.fillText(text, that.position.x+1, that.position.y+1);
 			
-			ctx.fillStyle = 'rgba(255, 225, 0, ' + opacity + ')';
+			ctx.fillStyle = 'rgba(255, 255, 0, ' + opacity + ')';
 			ctx.fillText(text, that.position.x, that.position.y);
 		};
 		
@@ -194,20 +195,17 @@ var ENTITIES = (function () {
 	};
 	exports.Ball.prototype = new exports.Entity();
 	
-	exports.Token = function (ctx, points, game) {
+	exports.Token = function (ctx, sprite, pointValue, points, game) {
 		var that = this;
 		
 		that.position = new ENGINE.Vector2();
 		that.velocity = new ENGINE.Vector2();
 		that.boundary = new ENGINE.AABB();
-		that.width  = 50;
-		that.height = 50;
 		
-		var sprite = new Image();
-		sprite.src = 'images/cherries.png';
+		var SPRITE_SCALE_FACTOR = 3;
 		var aspectRatio = sprite.width/sprite.height;
-		sprite.width *= 3;
-		sprite.height = sprite.width/aspectRatio;
+		that.width = sprite.width * SPRITE_SCALE_FACTOR;
+		that.height = that.width/aspectRatio;
 		
 		var chaChing = new Audio('sounds/cha-ching.mp3');
 		chaChing.volume = 0.1;
@@ -224,7 +222,7 @@ var ENTITIES = (function () {
 		};
 		
 		that.draw = function () {
-			ctx.drawImage(sprite, that.position.x - sprite.width/2, that.position.y - sprite.height/2, sprite.width, sprite.height);
+			ctx.drawImage(sprite, that.position.x - that.width/2, that.position.y - that.height/2, that.width, that.height);
 		};
 		
 		that.onCollision = function (collidable) {
@@ -232,7 +230,7 @@ var ENTITIES = (function () {
 				chaChing.replay();
 				
 				points.initialize();
-				points.baseValue = 100;
+				points.baseValue = pointValue;
 				points.multiplier = 1;
 				points.alignment = 'center';
 				points.position.x = that.position.x;
