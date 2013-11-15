@@ -53,16 +53,33 @@ var GAME = (function () {
 						}
 					};
 					
+					function drawTokens() {
+						var HORIZONTAL_OFFSET = 260;
+						var VERTICAL_OFFSET = -35;
+						
+						var aspectRatio = ASSETS.images.cherries.width/ASSETS.images.cherries.height;
+						var scaledWidth = ASSETS.images.cherries.width * 6;
+						var scaledHeight = scaledWidth/aspectRatio;
+						ctx.drawImage(ASSETS.images.cherries, HORIZONTAL_OFFSET - scaledWidth/2, ctx.canvas.height/2 - scaledHeight/2 + VERTICAL_OFFSET, scaledWidth, scaledHeight);
+						
+						var aspectRatio = ASSETS.images.bananas.width/ASSETS.images.bananas.height;
+						var scaledWidth = ASSETS.images.bananas.width * 6;
+						var scaledHeight = scaledWidth/aspectRatio;
+						ctx.drawImage(ASSETS.images.bananas, ctx.canvas.width - HORIZONTAL_OFFSET - scaledWidth/2, ctx.canvas.height/2 - scaledHeight/2 + VERTICAL_OFFSET, scaledWidth, scaledHeight);
+					}
+					
 					that.draw = function () {
 						ctx.textAlign = 'center';
 						ctx.fillStyle = 'white';
 						ctx.font = 'bold 128px monospace';
 						ctx.fillText('Ping', ctx.canvas.width/2, ctx.canvas.height/2);
 						
+						drawTokens();
+						
 						// start prompt
 						ctx.fillStyle = dimPrompt ? 'gray' : 'white';
 						ctx.font = 'normal 20px monospace';
-						ctx.fillText('Press Start', ctx.canvas.width/2, ctx.canvas.height/2 + 60);
+						ctx.fillText('Press Enter', ctx.canvas.width/2, ctx.canvas.height/2 + 60);
 					};
 				}
 				
