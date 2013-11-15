@@ -265,12 +265,12 @@ var ENGINE = (function () {
 			else return new exports.Vector2(that.x / length, that.y / length);
 		};
 		
-		that.scaled = function (scalar) {
+		that.multipliedBy = function (scalar) {
 			return new exports.Vector2(that.x*scalar, that.y*scalar);
 		};
 		
 		that.reflected = function (normal) {
-			return that.difference(normal.scaled(2 * that.dot(normal)));
+			return that.difference(normal.multipliedBy(2 * that.dot(normal)));
 		};
 		
 		// useful for debugging
@@ -304,13 +304,14 @@ var ENGINE = (function () {
 	};
 	
 	// axis-aligned bounding box
-	exports.AABB = function () {
+	// todo: absolutely needs work
+	exports.AABB = function (left, top, width, height) {
 		var that = this;
 		
-		that.left   = 0;
-		that.right  = 1;
-		that.top    = 0;
-		that.bottom = 1;
+		that.left   = left;
+		that.right  = left + width;
+		that.top    = top;
+		that.bottom = top + height;
 		
 		// if line segments A and B are overlapping, return the 1-dimensional vector that will most efficiently clear A from B
 		// otherwise return false
@@ -359,6 +360,13 @@ var ENGINE = (function () {
 			ctx.lineWidth = 2;
 			ctx.strokeStyle = 'red';
 			ctx.stroke();
+		};
+		
+		that.moveTo = function (position) {
+			that.left   = position.x - width/2;
+			that.right  = position.x + width/2;
+			that.top    = position.y - height/2;
+			that.bottom = position.y + height/2;
 		};
 	};
 	

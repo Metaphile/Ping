@@ -47,8 +47,21 @@ var ENTITIES = (function () {
 		
 		that.position = new ENGINE.Vector2();
 		that.velocity = new ENGINE.Vector2();
-		that.boundary = new ENGINE.AABB();
-		that.width = 8, that.height = 80;
+		
+		that.width = 8;
+		that.height = 80;
+		
+		that.boundary = new ENGINE.AABB(
+			that.position.x - that.width/2,
+			that.position.y - that.height/2,
+			that.width,
+			that.height
+		);
+		
+		that.update = function (deltaTime) {
+			that.position.add(that.velocity.multipliedBy(deltaTime));
+			that.boundary.moveTo(that.position);
+		};
 		
 		that.draw = function () {
 			ctx.fillStyle = 'white';
@@ -57,17 +70,16 @@ var ENTITIES = (function () {
 		
 		that.moveTo = function (y) {
 			that.position.y = y;
-			that.updateBoundary();
+			that.boundary.moveTo(that.position);
 		};
 		
 		that.onCollision = function (collidable, escapeVector) {
 			if (collidable instanceof exports.Wall) {
 				that.position.add(escapeVector);
-				that.updateBoundary();
+				that.boundary.moveTo(that.position);
 			}
 		};
 	};
-	exports.Paddle.prototype = new exports.Entity();
 	
 	exports.Ball = function (ctx) {
 		var that = this;
@@ -151,15 +163,8 @@ var ENTITIES = (function () {
 		
 		that.position = new ENGINE.Vector2();
 		that.velocity = new ENGINE.Vector2();
-		that.boundary = new ENGINE.AABB();
 		
-		// irrelevant
-		that.width = 1;
-		that.height = 1;
-		
-		that.baseValue = 0;
-		that.multiplier = 0;
-		that.alignment = 'left';
+		that.value = 0;
 		
 		var FADE_DURATION = 1.6, fadeDurationElapsed;
 		
@@ -177,19 +182,17 @@ var ENTITIES = (function () {
 		};
 		
 		that.draw = function () {
-			var text = '$' + that.baseValue.withCommas();
-			var opacity = 1 - fadeDurationElapsed/FADE_DURATION;
-			
-			ctx.textAlign = that.alignment;
+			ctx.textAlign = 'center';
 			ctx.font = 'bold 18px monospace';
 			
+			var text = '$' + that.value.withCommas();
+			var opacity = 1 - fadeDurationElapsed/FADE_DURATION;
 			ctx.fillStyle = 'rgba(255, 255, 255, ' + opacity + ')';
 			ctx.fillText(text, that.position.x, that.position.y);
 		};
 		
 		that.initialize();
 	};
-	exports.Points.prototype = new exports.Entity();
 	
 	exports.Token = function (ctx, sprite, pointValue, points, game) {
 		var that = this;
@@ -226,7 +229,7 @@ var ENTITIES = (function () {
 				chaChing.replay();
 				
 				points.initialize();
-				points.baseValue = pointValue * game.multiplier;
+				points.value = pointValue * game.multiplier;
 				points.alignment = 'center';
 				points.position.x = that.position.x;
 				points.position.y = that.position.y;
