@@ -4,13 +4,13 @@ var ENTITIES = (function () {
 	var exports = {};
 	
 	exports.Entity = function () {};
-	exports.Entity.prototype.update = function (interval) {
+	exports.Entity.prototype.update = function (deltaTime) {
 		var that = this;
 		
-		that.position.x += that.velocity.x * interval;
-		that.position.y += that.velocity.y * interval;
+		that.position.x += that.velocity.x * deltaTime;
+		that.position.y += that.velocity.y * deltaTime;
 		
-		that.updateBoundary();
+		that.boundary.moveTo(that.position);
 	};
 	exports.Entity.prototype.updateBoundary = function () {
 		var that = this;
@@ -89,8 +89,14 @@ var ENTITIES = (function () {
 		
 		that.position = new ENGINE.Vector2();
 		that.velocity = new ENGINE.Vector2();
-		that.boundary = new ENGINE.AABB();
-		that.width = that.height = 22;
+		that.radius = 12;
+		
+		that.boundary = new ENGINE.AABB(
+			that.position.x - that.radius,
+			that.position.y - that.radius,
+			that.radius*2,
+			that.radius*2
+		);
 		
 		var beep = new Audio('sounds/boop.mp3');
 		beep.volume = 0.1;
@@ -98,20 +104,18 @@ var ENTITIES = (function () {
 		boop.playbackRate = 0.5;
 		boop.volume = 0.1;
 		
-		that.update = function (interval) {
+		that.update = function (deltaTime) {
 			if (!that.enabled) return;
 			
-			that.constructor.prototype.update.call(that, interval);
-			
-			// quick and dirty gravity
-			// that.velocity.y += 400*interval;
+			that.position.add(that.velocity.multipliedBy(deltaTime));
+			that.boundary.moveTo(that.position);
 		};
 		
 		that.draw = function () {
 			if (!that.enabled) return;
 			
 			ctx.beginPath();
-			ctx.arc(that.position.x, that.position.y, that.width/2, 0, Math.PI * 2);
+			ctx.arc(that.position.x, that.position.y, that.radius, 0, Math.PI * 2);
 			ctx.fillStyle = 'white';
 			ctx.fill();
 		};
@@ -119,18 +123,21 @@ var ENTITIES = (function () {
 		that.onCollision = function (collidable, escapeVector) {
 			if (collidable instanceof exports.Wall) {
 				beep.replay();
+				
 				that.position.add(escapeVector);
-				that.updateBoundary();
-				that.velocity = that.velocity.reflected(escapeVector.normalized());
+				that.boundary.moveTo(that.position);
+				
+				// this is a bit cheating, but since we know that the collidable's boundary is an AABB, then the normalized escape vector is also the surface normal
+				var surfaceNormal = escapeVector.normalized();
+				that.velocity = that.velocity.reflectedAbout(surfaceNormal);
 			}
 			
 			if (collidable instanceof exports.Paddle) {
-				that.position.add(escapeVector);
-				that.updateBoundary();
-				
 				boop.replay();
 				
-				// this is a bit cheating, but since we know that the paddle's boundary is an AABB, then the normalized escape vector is also the surface normal
+				that.position.add(escapeVector);
+				that.boundary.moveTo(that.position);
+				
 				var surfaceNormal = escapeVector.normalized();
 				
 				if (Math.abs(surfaceNormal.x) > Math.abs(surfaceNormal.y)) {
@@ -138,7 +145,7 @@ var ENTITIES = (function () {
 					
 					var t = that.position.y - collidable.position.y;
 					// -1 ... 1
-					t /= (collidable.height + that.height) / 2;
+					t /= (collidable.height + that.radius*2) / 2;
 					var accuracy = 1 - Math.abs(t);
 					// add a bit of randomness
 					t += Math.randRange(-0.1, 0.1);
@@ -151,12 +158,11 @@ var ENTITIES = (function () {
 				} else {
 					// bounce normally
 					boop.replay();
-					that.velocity = that.velocity.reflected(surfaceNormal);
+					that.velocity = that.velocity.reflectedAbout(surfaceNormal);
 				}
 			}
 		};
 	};
-	exports.Ball.prototype = new exports.Entity();
 	
 	exports.Points = function (ctx) {
 		var that = this;
@@ -172,12 +178,12 @@ var ENTITIES = (function () {
 			fadeDurationElapsed = 0;
 		};
 		
-		that.update = function (interval) {
+		that.update = function (deltaTime) {
 			if (fadeDurationElapsed < FADE_DURATION) {
-				fadeDurationElapsed += interval;
+				fadeDurationElapsed += deltaTime;
 				
 				// float up
-				that.position.y -= 20 * interval;
+				that.position.y -= 20 * deltaTime;
 			}
 		};
 		
@@ -216,9 +222,9 @@ var ENTITIES = (function () {
 		
 		var t = Math.randRange(0, Math.PI*2);
 		
-		that.update = function (interval) {
+		that.update = function (deltaTime) {
 			// bob slightly
-			t += 5 * interval;
+			t += 5 * deltaTime;
 			while (t > Math.PI*2) t -= Math.PI*2;
 			that.position.y += Math.sin(t) * 0.2;
 			that.boundary.moveTo(that.position);
@@ -289,8 +295,8 @@ var ENTITIES = (function () {
 			if (i > -1) active[i] = false;
 		};
 		
-		that.update = function (interval) {
-			that.forEach(function (entity) { entity.update(interval); });
+		that.update = function (deltaTime) {
+			that.forEach(function (entity) { entity.update(deltaTime); });
 		};
 		
 		that.draw = function () {

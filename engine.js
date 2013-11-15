@@ -269,7 +269,7 @@ var ENGINE = (function () {
 			return new exports.Vector2(that.x*scalar, that.y*scalar);
 		};
 		
-		that.reflected = function (normal) {
+		that.reflectedAbout = function (normal) {
 			return that.difference(normal.multipliedBy(2 * that.dot(normal)));
 		};
 		

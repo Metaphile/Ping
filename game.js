@@ -44,8 +44,8 @@ var GAME = (function () {
 						.merge(that.onButtonDown.then(ifOneOf(ENGINE.Gamepad.buttons.start, ENGINE.Gamepad.buttons.a)))
 						.then(function () { changeState(states.main); });
 					
-					that.update = function (interval) {
-						elapsed += interval;
+					that.update = function (deltaTime) {
+						elapsed += deltaTime;
 						if (elapsed > BLINK_INTERVAL) {
 							dimPrompt = !dimPrompt;
 							while (elapsed > BLINK_INTERVAL) elapsed -= BLINK_INTERVAL;
@@ -210,7 +210,7 @@ var GAME = (function () {
 						});
 						
 						// ball-void collisions
-						if (ball.position.x + ball.width/2 < 0 || ball.position.x - ball.width/2 > ctx.canvas.width) {
+						if (ball.position.x + ball.radius < 0 || ball.position.x - ball.radius > ctx.canvas.width) {
 							multiplierResetIntervalRemaining = 0;
 							that.multiplier = 1;
 							changeState(states.serving);
@@ -239,12 +239,12 @@ var GAME = (function () {
 						});
 					}
 					
-					that.update = function (interval) {
-						for (var i = 0, n = entities.length; i < n; i++) entities[i].update(interval);
+					that.update = function (deltaTime) {
+						for (var i = 0, n = entities.length; i < n; i++) entities[i].update(deltaTime);
 						
 						checkCollisions();
 						
-						multiplierResetIntervalRemaining = Math.max(multiplierResetIntervalRemaining - interval, 0);
+						multiplierResetIntervalRemaining = Math.max(multiplierResetIntervalRemaining - deltaTime, 0);
 						if (multiplierResetIntervalRemaining === 0) that.multiplier = 1;
 					};
 					
@@ -295,8 +295,8 @@ var GAME = (function () {
 							dimPrompt = false;
 						};
 						
-						that.update = function (interval) {
-							elapsed += interval;
+						that.update = function (deltaTime) {
+							elapsed += deltaTime;
 							if (elapsed > BLINK_INTERVAL) {
 								dimPrompt = !dimPrompt;
 								while (elapsed > BLINK_INTERVAL) elapsed -= BLINK_INTERVAL;
@@ -362,10 +362,10 @@ var GAME = (function () {
 									
 									that.onEnter = ENGINE.noop;
 									
-									that.update = function (interval) {
-										that.__proto__.update(interval);
+									that.update = function (deltaTime) {
+										that.__proto__.update(deltaTime);
 										
-										remaining -= interval;
+										remaining -= deltaTime;
 										if (remaining <= 0) {
 											var angle = Math.randRange(-45, 45);
 											// randomly serve to the left or right

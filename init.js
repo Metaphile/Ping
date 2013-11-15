@@ -25,13 +25,13 @@ window.onload = function () {
 		var then = performance.now();
 		function step(now) {
 			// seconds
-			var interval = (now - then) / 1000;
+			var deltaTime = (now - then) / 1000;
 			then = now;
 			
 			requestAnimationFrame(step);
 			
 			input.gamepad.poll();
-			game.update(interval);
+			game.update(deltaTime);
 			
 			ctx.clear();
 			game.draw();
