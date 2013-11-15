@@ -32,23 +32,24 @@ var GAME = (function () {
 					that.onKeyDown = ENGINE.streamify();
 					that.onButtonDown = ENGINE.streamify();
 					
-					// returns a function that returns `item` if `item` is in the list of items supplied to ifOneOf
-					function ifOneOf(/* item1, item2 ... */) {
+					// experimental
+					// returns a function that returns `item` if `item` is in the given list
+					function allow(/* item1, item2 ... */) {
 						var items = Array.prototype.slice.call(arguments);
 						return function (item) {
 							if (items.indexOf(item) > -1) return item;
 						};
 					}
 					
-					that.onKeyDown.then(ifOneOf(ENGINE.Keyboard.keys.enter))
-						.merge(that.onButtonDown.then(ifOneOf(ENGINE.Gamepad.buttons.start, ENGINE.Gamepad.buttons.a)))
+					that.onKeyDown.then(allow(ENGINE.Keyboard.keys.enter))
+						.or(that.onButtonDown.then(allow(ENGINE.Gamepad.buttons.start, ENGINE.Gamepad.buttons.a)))
 						.then(function () { changeState(states.main); });
 					
-					that.update = function (interval) {
-						elapsed += interval;
+					that.update = function (deltaTime) {
+						elapsed += deltaTime;
 						if (elapsed > BLINK_INTERVAL) {
 							dimPrompt = !dimPrompt;
-							elapsed -= BLINK_INTERVAL;
+							while (elapsed > BLINK_INTERVAL) elapsed -= BLINK_INTERVAL;
 						}
 					};
 					
@@ -74,6 +75,9 @@ var GAME = (function () {
 				function Main() {
 					var that = this;
 					that.score = 0;
+					that.multiplier = 1;
+					var multiplierResetInterval = 5;
+					var multiplierResetIntervalRemaining = 0;
 					var spareBalls;
 					var TOTAL_BALLS = 3;
 					var WALL_THICKNESS = 50;
@@ -83,19 +87,11 @@ var GAME = (function () {
 					var paddles = [];
 					
 					(function () {
-						var upperWall = new ENTITIES.Wall(ctx);
-						upperWall.boundary.left   = -9999;
-						upperWall.boundary.right  = ctx.canvas.width + 9999;
-						upperWall.boundary.top    = -9999;
-						upperWall.boundary.bottom = WALL_THICKNESS;
+						var upperWall = new ENTITIES.Wall(ctx, -9999, -9999, 9999 + ctx.canvas.width + 9999, 9999 + WALL_THICKNESS);
 						entities.push(upperWall);
 						walls.push(upperWall);
 						
-						var lowerWall = new ENTITIES.Wall(ctx);
-						lowerWall.boundary.left   = -9999;
-						lowerWall.boundary.right  = ctx.canvas.width + 9999;
-						lowerWall.boundary.top    = ctx.canvas.height - WALL_THICKNESS;
-						lowerWall.boundary.bottom = ctx.canvas.height + 9999;
+						var lowerWall = new ENTITIES.Wall(ctx, -9999, ctx.canvas.height - WALL_THICKNESS, 9999 + ctx.canvas.width + 9999, ctx.canvas.height - WALL_THICKNESS + 9999);
 						entities.push(lowerWall);
 						walls.push(lowerWall);
 					}());
@@ -112,18 +108,48 @@ var GAME = (function () {
 						paddles.push(rightPaddle);
 					}());
 					
-					var points = new ENTITIES.Points(ctx);
-					entities.push(points);
+					var pointses = new ENTITIES.EntityPool(function () {
+						return new ENTITIES.Points(ctx);
+					}, 10);
+					entities.push(pointses);
 					
-					var ball = new ENTITIES.Ball(ctx, points, that);
+					var ball = new ENTITIES.Ball(ctx);
 					entities.push(ball);
+					
+					var cherryTokens = new ENTITIES.EntityPool(function () {
+						return new ENTITIES.Token(ctx, ASSETS.images.cherries, 100, pointses, that);
+					}, 10);
+					entities.push(cherryTokens);
+					
+					var bananaTokens = new ENTITIES.EntityPool(function () {
+						return new ENTITIES.Token(ctx, ASSETS.images.bananas, 500, pointses, that);
+					}, 10);
+					entities.push(bananaTokens);
+					
+					// get some tokens
+					var i = 3;
+					while (i--) cherryTokens.getNext();
+					var i = 1;
+					while (i--) bananaTokens.getNext();
 					
 					that.onEnter = function () {
 						that.score = 0;
+						multiplierResetIntervalRemaining = 0;
+						that.multiplier = 1;
 						spareBalls = TOTAL_BALLS;
 						// vertically center paddles
 						for (var i = 0, n = paddles.length; i < n; i++) paddles[i].position.y = ctx.canvas.height/2;
 						ball.enabled = true;
+						
+						// randomly distribute tokens
+						cherryTokens.forEach(function (token) {
+							token.position.x = Math.randRange(100, ctx.canvas.width-100);
+							token.position.y = Math.randRange(100, ctx.canvas.height-100);
+						});
+						bananaTokens.forEach(function (token) {
+							token.position.x = Math.randRange(100, ctx.canvas.width-100);
+							token.position.y = Math.randRange(100, ctx.canvas.height-100);
+						});
 						
 						changeState(states.serving);
 					};
@@ -139,7 +165,7 @@ var GAME = (function () {
 					that.onRightStick({ x: 0, y: 0 });
 					
 					that.onLeftStick
-						.merge(that.onRightStick, function (vector1, vector2) {
+						.or(that.onRightStick, function (vector1, vector2) {
 							var y = vector1.y + vector2.y;
 							if (y > 1) return 1;
 							else if (y < -1) return -1;
@@ -177,21 +203,64 @@ var GAME = (function () {
 						});
 						
 						// ball-void collisions
-						if (ball.position.x + ball.width/2 < 0 || ball.position.x - ball.width/2 > ctx.canvas.width) changeState(states.serving);
+						if (ball.position.x + ball.radius < 0 || ball.position.x - ball.radius > ctx.canvas.width) {
+							multiplierResetIntervalRemaining = 0;
+							that.multiplier = 1;
+							changeState(states.serving);
+						}
+						
+						// ball-token collisions
+						cherryTokens.forEach(function (token) {
+							var escapeVector = token.boundary.test(ball.boundary);
+							if (escapeVector) {
+								token.onCollision(ball, escapeVector);
+								ball.onCollision(token, escapeVector.inverse());
+								
+								that.multiplier += 1;
+								multiplierResetIntervalRemaining = multiplierResetInterval;
+							}
+						});
+						bananaTokens.forEach(function (token) {
+							var escapeVector = token.boundary.test(ball.boundary);
+							if (escapeVector) {
+								token.onCollision(ball, escapeVector);
+								ball.onCollision(token, escapeVector.inverse());
+								
+								that.multiplier += 1;
+								multiplierResetIntervalRemaining = multiplierResetInterval;
+							}
+						});
 					}
 					
-					that.update = function (interval) {
-						for (var i = 0, n = entities.length; i < n; i++) entities[i].update(interval);
+					that.update = function (deltaTime) {
+						for (var i = 0, n = entities.length; i < n; i++) entities[i].update(deltaTime);
+						
 						checkCollisions();
+						
+						multiplierResetIntervalRemaining = Math.max(multiplierResetIntervalRemaining - deltaTime, 0);
+						if (multiplierResetIntervalRemaining === 0) that.multiplier = 1;
 					};
 					
 					that.draw = function () {
 						// score
 						
+						var scoreText = '$' + that.score.withCommas();
 						ctx.textAlign = 'center';
-						ctx.fillStyle = 'white';
 						ctx.font = 'bold 30px monospace';
-						ctx.fillText(that.score.withCommas(), ctx.canvas.width/2, 34);
+						ctx.fillStyle = 'gray';
+						ctx.fillText(scoreText, ctx.canvas.width/2 + 2, 34 + 2);
+						ctx.fillStyle = 'white';
+						ctx.fillText(scoreText, ctx.canvas.width/2, 34);
+						
+						ctx.fillStyle = 'gray';
+						ctx.fillRect(100, WALL_THICKNESS/2 - 16/2, 128, 16);
+						ctx.fillStyle = 'white';
+						ctx.fillRect(100, WALL_THICKNESS/2 - 16/2, multiplierResetIntervalRemaining/multiplierResetInterval * 128, 16);
+						
+						ctx.textAlign = 'left';
+						ctx.font = 'normal 20px monospace';
+						ctx.fillStyle = 'white';
+						ctx.fillText('×' + that.multiplier, 232, 32);
 						
 						// spare balls (heh)
 						
@@ -219,11 +288,11 @@ var GAME = (function () {
 							dimPrompt = false;
 						};
 						
-						that.update = function (interval) {
-							elapsed += interval;
+						that.update = function (deltaTime) {
+							elapsed += deltaTime;
 							if (elapsed > BLINK_INTERVAL) {
 								dimPrompt = !dimPrompt;
-								elapsed -= BLINK_INTERVAL;
+								while (elapsed > BLINK_INTERVAL) elapsed -= BLINK_INTERVAL;
 							}
 						};
 						
@@ -243,7 +312,7 @@ var GAME = (function () {
 						that.onButtonDown = ENGINE.streamify();
 						
 						that.onKeyDown.then(function (key) { if (key === ENGINE.Keyboard.keys.esc) return key; })
-							.merge(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start) return button; }))
+							.or(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start) return button; }))
 							.then(function () { changeState(notPausedState); });
 						
 						that.onMouseMove = ENGINE.noop;
@@ -286,10 +355,10 @@ var GAME = (function () {
 									
 									that.onEnter = ENGINE.noop;
 									
-									that.update = function (interval) {
-										that.__proto__.update(interval);
+									that.update = function (deltaTime) {
+										that.__proto__.update(deltaTime);
 										
-										remaining -= interval;
+										remaining -= deltaTime;
 										if (remaining <= 0) {
 											var angle = Math.randRange(-45, 45);
 											// randomly serve to the left or right
@@ -305,11 +374,11 @@ var GAME = (function () {
 									that.onButtonDown = ENGINE.streamify();
 									
 									that.onKeyDown.then(function (key) { if (key === ENGINE.Keyboard.keys.esc) return key; })
-										.merge(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start) return button; }))
+										.or(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start) return button; }))
 										.then(function () { changeState(states.servingPaused); });
 									
 									that.onKeyDown.then(function (key) { if (key === ENGINE.Keyboard.keys.enter) return key; })
-										.merge(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.a) return button; }))
+										.or(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.a) return button; }))
 										.then(function () { remaining = Math.ceil(remaining - 1); });
 								}
 								
@@ -345,7 +414,7 @@ var GAME = (function () {
 									that.onButtonDown = ENGINE.streamify();
 									
 									that.onKeyDown.then(function (key) { if (key === ENGINE.Keyboard.keys.esc) return key; })
-										.merge(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start) return button; }))
+										.or(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start) return button; }))
 										.then(function () { changeState(states.playingPaused); });
 								}
 								
@@ -388,7 +457,7 @@ var GAME = (function () {
 							// press *almost* any key to continue
 							that.onKeyDown.then(function (key) { if (ENGINE.Keyboard.modifiers.indexOf(key) === -1) return key; })
 								// needs work -- includes triggers, D-pad, etc.
-								.merge(that.onButtonDown)
+								.or(that.onButtonDown)
 								.then(function () { changeState(states.title); });
 						}
 						
