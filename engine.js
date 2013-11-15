@@ -131,7 +131,11 @@ var ENGINE = (function () {
 	exports.Mouse = function (domNode) {
 		var that = this;
 		
-		that.move = exports.streamify(function (event) { return { x: event.offsetX, y: event.offsetY }; });
+		that.move = exports.streamify(function (event) {
+			if ('offsetX' in event) return { x: event.offsetX, y: event.offsetY };
+			// Firefox
+			else return { x: event.layerX, y: event.layerY };
+		});
 		
 		domNode.addEventListener('mousemove', that.move);
 	};
@@ -189,6 +193,9 @@ var ENGINE = (function () {
 			// initialize streams
 			that.leftStick({ x: 0, y: 0 });
 			that.rightStick({ x: 0, y: 0 });
+			
+			// don't choke in browsers that don't implement webkitGetGamepads
+			navigator.webkitGetGamepads = navigator.webkitGetGamepads || function () { return { buttons: [], axes: [] }; };
 			
 			that.poll = function () {
 				var state = navigator.webkitGetGamepads()[index];
