@@ -82,9 +82,9 @@ var ENTITIES = (function () {
 			that.radius*2
 		);
 		
-		var beep = new Audio('sounds/boop.mp3');
+		var beep = new Audio('sounds/boop.ogg');
 		beep.volume = 0.1;
-		var boop = new Audio('sounds/boop.mp3');
+		var boop = new Audio('sounds/boop.ogg');
 		boop.playbackRate = 0.5;
 		boop.volume = 0.1;
 		
@@ -201,7 +201,7 @@ var ENTITIES = (function () {
 			that.height
 		);
 		
-		var chaChing = new Audio('sounds/cha-ching.mp3');
+		var chaChing = new Audio('sounds/cha-ching.ogg');
 		chaChing.volume = 0.1;
 		
 		var t = Math.randRange(0, Math.PI*2);
