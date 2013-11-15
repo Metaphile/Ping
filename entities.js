@@ -276,6 +276,11 @@ var ENTITIES = (function () {
 					return entities[lastChecked];
 				}
 			}
+			
+			// uht-oh! all out of entities; recycle the oldest entity
+			lastChecked++;
+			if (lastChecked >= entities.length) lastChecked = 0;
+			return entities[lastChecked];
 		};
 		
 		that.putBack = function (entity) {
