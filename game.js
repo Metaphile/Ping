@@ -258,6 +258,22 @@ var GAME = (function () {
 						if (multiplierResetIntervalRemaining === 0) that.multiplier = 1;
 					};
 					
+					function drawMultiplier() {
+						var LEFT = 100;
+						var WIDTH = 200;
+						var HEIGHT = 22;
+						
+						ctx.fillStyle = 'gray';
+						ctx.fillRect(LEFT, WALL_THICKNESS/2 - HEIGHT/2, WIDTH, HEIGHT);
+						ctx.fillStyle = 'white';
+						ctx.fillRect(LEFT, WALL_THICKNESS/2 - HEIGHT/2, multiplierResetIntervalRemaining/multiplierResetInterval * WIDTH, HEIGHT);
+						
+						ctx.textAlign = 'center';
+						ctx.font = 'bold 18px monospace';
+						ctx.fillStyle = 'black';
+						ctx.fillText('×' + that.multiplier, LEFT + WIDTH/2, 31);
+					}
+					
 					that.draw = function () {
 						// score
 						
@@ -269,15 +285,7 @@ var GAME = (function () {
 						ctx.fillStyle = 'white';
 						ctx.fillText(scoreText, ctx.canvas.width/2, 34);
 						
-						ctx.fillStyle = 'gray';
-						ctx.fillRect(100, WALL_THICKNESS/2 - 16/2, 128, 16);
-						ctx.fillStyle = 'white';
-						ctx.fillRect(100, WALL_THICKNESS/2 - 16/2, multiplierResetIntervalRemaining/multiplierResetInterval * 128, 16);
-						
-						ctx.textAlign = 'left';
-						ctx.font = 'normal 20px monospace';
-						ctx.fillStyle = 'white';
-						ctx.fillText('×' + that.multiplier, 232, 32);
+						drawMultiplier();
 						
 						// spare balls (heh)
 						
