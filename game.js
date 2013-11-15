@@ -31,6 +31,7 @@ var GAME = (function () {
 					
 					that.onKeyDown = ENGINE.streamify();
 					that.onButtonDown = ENGINE.streamify();
+					that.onMouseDown = ENGINE.streamify();
 					
 					// experimental
 					// returns a function that returns `item` if `item` is in the given list
@@ -44,6 +45,9 @@ var GAME = (function () {
 					that.onKeyDown.then(allow(ENGINE.Keyboard.keys.enter))
 						.or(that.onButtonDown.then(allow(ENGINE.Gamepad.buttons.start, ENGINE.Gamepad.buttons.a)))
 						.then(function () { changeState(states.main); });
+					
+					// doesn't work when merged above??
+					that.onMouseDown.then(function (event) { console.log('hi'); if (event.button === 0) return event; }).then(function () { changeState(states.main); });
 					
 					that.update = function (deltaTime) {
 						elapsed += deltaTime;
@@ -478,12 +482,16 @@ var GAME = (function () {
 							
 							that.onKeyDown = ENGINE.streamify();
 							that.onButtonDown = ENGINE.streamify();
+							that.onMouseDown = ENGINE.streamify();
 							
 							// press *almost* any key to continue
 							that.onKeyDown.then(function (key) { if (ENGINE.Keyboard.modifiers.indexOf(key) === -1) return key; })
 								// needs work -- includes triggers, D-pad, etc.
 								.or(that.onButtonDown)
 								.then(function () { changeState(states.title); });
+							
+							// doesn't work when merged above??
+							that.onMouseDown.then(function (event) { console.log('hi'); if (event.button === 0) return event; }).then(function () { changeState(states.title); });
 						}
 						
 						GameOver.prototype = that; // states.main
@@ -507,6 +515,7 @@ var GAME = (function () {
 		
 		delegate('onKeyDown');
 		delegate('onMouseMove');
+		delegate('onMouseDown');
 		delegate('onButtonDown');
 		delegate('onLeftStick');
 		delegate('onRightStick');
@@ -516,6 +525,7 @@ var GAME = (function () {
 		// subscribe to input events
 		input.keyboard.keyDown.then(that.onKeyDown);
 		input.mouse.move.then(that.onMouseMove);
+		input.mouse.down.then(that.onMouseDown);
 		input.gamepad.buttonDown.then(that.onButtonDown);
 		input.gamepad.leftStick.then(that.onLeftStick);
 		input.gamepad.rightStick.then(that.onRightStick);

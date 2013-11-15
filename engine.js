@@ -137,7 +137,10 @@ var ENGINE = (function () {
 			else return { x: event.layerX, y: event.layerY };
 		});
 		
+		that.down = exports.streamify();
+		
 		domNode.addEventListener('mousemove', that.move);
+		domNode.addEventListener('mousedown', that.down);
 	};
 	
 	exports.Gamepad = (function () {
