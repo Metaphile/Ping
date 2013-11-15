@@ -48,7 +48,7 @@ var GAME = (function () {
 						elapsed += interval;
 						if (elapsed > BLINK_INTERVAL) {
 							dimPrompt = !dimPrompt;
-							elapsed -= BLINK_INTERVAL;
+							while (elapsed > BLINK_INTERVAL) elapsed -= BLINK_INTERVAL;
 						}
 					};
 					
@@ -306,7 +306,7 @@ var GAME = (function () {
 							elapsed += interval;
 							if (elapsed > BLINK_INTERVAL) {
 								dimPrompt = !dimPrompt;
-								elapsed -= BLINK_INTERVAL;
+								while (elapsed > BLINK_INTERVAL) elapsed -= BLINK_INTERVAL;
 							}
 						};
 						
