@@ -122,19 +122,12 @@ var GAME = (function () {
 					var ball = new ENTITIES.Ball(ctx);
 					entities.push(ball);
 					
-					// todo: put tokens behind points
-					(function () {
+					var cherryTokens = new ENTITIES.EntityPool(function () {
+						// this is inefficient, but we're gonna replace it with a factory call anyway
 						var sprite = new Image();
 						sprite.src = 'images/cherries.png';
-						
-						for (var i = 0; i < 3; i++) {
-							var cherries = new ENTITIES.Token(ctx, sprite, 100, points, that);
-							cherries.position.x = Math.randRange(100, ctx.canvas.width-100);
-							cherries.position.y = Math.randRange(100, ctx.canvas.height-100);
-							tokens.push(cherries);
-							entities.push(cherries);
-						}
-					}());
+						return new ENTITIES.Token(ctx, sprite, 100, points, that);
+					}, 3);
 					
 					(function () {
 						var sprite = new Image();
@@ -157,6 +150,12 @@ var GAME = (function () {
 						// vertically center paddles
 						for (var i = 0, n = paddles.length; i < n; i++) paddles[i].position.y = ctx.canvas.height/2;
 						ball.enabled = true;
+						
+						// randomly distribute cherry tokens
+						cherryTokens.forEach(function (token) {
+							token.position.x = Math.randRange(100, ctx.canvas.width-100);
+							token.position.y = Math.randRange(100, ctx.canvas.height-100);
+						});
 						
 						changeState(states.serving);
 					};
