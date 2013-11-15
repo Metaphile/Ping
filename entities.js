@@ -183,7 +183,7 @@ var ENTITIES = (function () {
 		
 		that.draw = function () {
 			ctx.textAlign = 'center';
-			ctx.font = 'bold 18px monospace';
+			ctx.font = 'bold 16px monospace';
 			
 			var text = '$' + that.value.withCommas();
 			var opacity = 1 - fadeDurationElapsed/FADE_DURATION;
@@ -232,13 +232,14 @@ var ENTITIES = (function () {
 			if (collidable instanceof exports.Ball) {
 				chaChing.replay();
 				
-				/* points.initialize();
+				var points = pointses.getNext();
+				points.initialize();
 				points.value = pointValue * game.multiplier;
 				points.alignment = 'center';
 				points.position.x = that.position.x;
 				points.position.y = that.position.y;
 				
-				game.score += pointValue * game.multiplier; */
+				game.score += pointValue * game.multiplier;
 				
 				// temp!! move to random location
 				that.position.x = Math.randRange(100, ctx.canvas.width-100);
