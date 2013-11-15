@@ -3,41 +3,25 @@ var ENTITIES = (function () {
 	
 	var exports = {};
 	
-	exports.Entity = function () {};
-	exports.Entity.prototype.update = function (deltaTime) {
+	exports.Wall = function (ctx, left, top, width, height) {
 		var that = this;
 		
-		that.position.x += that.velocity.x * deltaTime;
-		that.position.y += that.velocity.y * deltaTime;
-		
-		that.boundary.moveTo(that.position);
-	};
-	exports.Entity.prototype.updateBoundary = function () {
-		var that = this;
-		
-		that.boundary.left   = that.position.x - that.width/2;
-		that.boundary.right  = that.position.x + that.width/2;
-		that.boundary.top    = that.position.y - that.height/2;
-		that.boundary.bottom = that.position.y + that.height/2;
-	};
-	exports.Entity.prototype.onCollision = ENGINE.noop;
-	
-	exports.Wall = function (ctx) {
-		var that = this;
-		that.boundary = new ENGINE.AABB();
+		that.boundary = new ENGINE.AABB(left, top, width, height);
 		
 		that.update = ENGINE.noop;
 		
 		that.draw = function () {
-			ctx.beginPath();
 			ctx.lineWidth = 3;
+			ctx.strokeStyle = 'white';
+			
+			ctx.beginPath();
 			ctx.rect(
 				that.boundary.left + ctx.lineWidth/2,
 				that.boundary.top + ctx.lineWidth/2,
 				that.boundary.right - that.boundary.left - ctx.lineWidth,
-				that.boundary.bottom - that.boundary.top - ctx.lineWidth);
+				that.boundary.bottom - that.boundary.top - ctx.lineWidth
+			);
 			
-			ctx.strokeStyle = 'white';
 			ctx.stroke();
 		};
 	};

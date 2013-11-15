@@ -86,19 +86,11 @@ var GAME = (function () {
 					var paddles = [];
 					
 					(function () {
-						var upperWall = new ENTITIES.Wall(ctx);
-						upperWall.boundary.left   = -9999;
-						upperWall.boundary.right  = ctx.canvas.width + 9999;
-						upperWall.boundary.top    = -9999;
-						upperWall.boundary.bottom = WALL_THICKNESS;
+						var upperWall = new ENTITIES.Wall(ctx, -9999, -9999, 9999 + ctx.canvas.width + 9999, 9999 + WALL_THICKNESS);
 						entities.push(upperWall);
 						walls.push(upperWall);
 						
-						var lowerWall = new ENTITIES.Wall(ctx);
-						lowerWall.boundary.left   = -9999;
-						lowerWall.boundary.right  = ctx.canvas.width + 9999;
-						lowerWall.boundary.top    = ctx.canvas.height - WALL_THICKNESS;
-						lowerWall.boundary.bottom = ctx.canvas.height + 9999;
+						var lowerWall = new ENTITIES.Wall(ctx, -9999, ctx.canvas.height - WALL_THICKNESS, 9999 + ctx.canvas.width + 9999, ctx.canvas.height - WALL_THICKNESS + 9999);
 						entities.push(lowerWall);
 						walls.push(lowerWall);
 					}());
