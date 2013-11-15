@@ -127,20 +127,20 @@ var GAME = (function () {
 						var sprite = new Image();
 						sprite.src = 'images/cherries.png';
 						return new ENTITIES.Token(ctx, sprite, 100, points, that);
-					}, 3);
+					}, 10);
 					
-					(function () {
+					var bananaTokens = new ENTITIES.EntityPool(function () {
+						// this is inefficient, but we're gonna replace it with a factory call anyway
 						var sprite = new Image();
 						sprite.src = 'images/bananas.png';
-						
-						for (var i = 0; i < 2; i++) {
-							var bananas = new ENTITIES.Token(ctx, sprite, 500, points, that);
-							bananas.position.x = Math.randRange(100, ctx.canvas.width-100);
-							bananas.position.y = Math.randRange(100, ctx.canvas.height-100);
-							tokens.push(bananas);
-							entities.push(bananas);
-						}
-					}());
+						return new ENTITIES.Token(ctx, sprite, 500, points, that);
+					}, 10);
+					
+					// get some tokens
+					var i = 3;
+					while (i--) cherryTokens.getNext();
+					var i = 1;
+					while (i--) bananaTokens.getNext();
 					
 					that.onEnter = function () {
 						that.score = 0;
@@ -151,8 +151,12 @@ var GAME = (function () {
 						for (var i = 0, n = paddles.length; i < n; i++) paddles[i].position.y = ctx.canvas.height/2;
 						ball.enabled = true;
 						
-						// randomly distribute cherry tokens
+						// randomly distribute tokens
 						cherryTokens.forEach(function (token) {
+							token.position.x = Math.randRange(100, ctx.canvas.width-100);
+							token.position.y = Math.randRange(100, ctx.canvas.height-100);
+						});
+						bananaTokens.forEach(function (token) {
 							token.position.x = Math.randRange(100, ctx.canvas.width-100);
 							token.position.y = Math.randRange(100, ctx.canvas.height-100);
 						});
@@ -216,20 +220,33 @@ var GAME = (function () {
 						}
 						
 						// ball-token collisions
-						for (var i = 0, n = tokens.length; i < n; i++) {
-							var escapeVector = tokens[i].boundary.test(ball.boundary);
+						cherryTokens.forEach(function (token) {
+							var escapeVector = token.boundary.test(ball.boundary);
 							if (escapeVector) {
-								tokens[i].onCollision(ball, escapeVector);
-								ball.onCollision(tokens[i], escapeVector.inverse());
+								token.onCollision(ball, escapeVector);
+								ball.onCollision(token, escapeVector.inverse());
 								
 								that.multiplier += 1;
 								multiplierResetIntervalRemaining = multiplierResetInterval;
 							}
-						}
+						});
+						bananaTokens.forEach(function (token) {
+							var escapeVector = token.boundary.test(ball.boundary);
+							if (escapeVector) {
+								token.onCollision(ball, escapeVector);
+								ball.onCollision(token, escapeVector.inverse());
+								
+								that.multiplier += 1;
+								multiplierResetIntervalRemaining = multiplierResetInterval;
+							}
+						});
 					}
 					
 					that.update = function (interval) {
+						cherryTokens.forEach(function (token) { token.update(interval); });
+						bananaTokens.forEach(function (token) { token.update(interval); });
 						for (var i = 0, n = entities.length; i < n; i++) entities[i].update(interval);
+						
 						checkCollisions();
 						
 						multiplierResetIntervalRemaining = Math.max(multiplierResetIntervalRemaining - interval, 0);
@@ -270,6 +287,8 @@ var GAME = (function () {
 							ctx.fill();
 						}
 						
+						cherryTokens.forEach(function (token) { token.draw(); });
+						bananaTokens.forEach(function (token) { token.draw(); });
 						for (var i = 0, n = entities.length; i < n; i++) entities[i].draw();
 					};
 					
