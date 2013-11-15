@@ -84,7 +84,6 @@ var GAME = (function () {
 					var entities = [];
 					var walls = [];
 					var paddles = [];
-					var tokens = [];
 					
 					(function () {
 						var upperWall = new ENTITIES.Wall(ctx);
@@ -116,25 +115,23 @@ var GAME = (function () {
 						paddles.push(rightPaddle);
 					}());
 					
-					var points = new ENTITIES.Points(ctx);
-					entities.push(points);
+					var pointses = new ENTITIES.EntityPool(function () {
+						return new ENTITIES.Points(ctx);
+					}, 10);
+					entities.push(pointses);
 					
 					var ball = new ENTITIES.Ball(ctx);
 					entities.push(ball);
 					
 					var cherryTokens = new ENTITIES.EntityPool(function () {
-						// this is inefficient, but we're gonna replace it with a factory call anyway
-						var sprite = new Image();
-						sprite.src = 'images/cherries.png';
-						return new ENTITIES.Token(ctx, sprite, 100, points, that);
+						return new ENTITIES.Token(ctx, ASSETS.images.cherries, 100, pointses, that);
 					}, 10);
+					entities.push(cherryTokens);
 					
 					var bananaTokens = new ENTITIES.EntityPool(function () {
-						// this is inefficient, but we're gonna replace it with a factory call anyway
-						var sprite = new Image();
-						sprite.src = 'images/bananas.png';
-						return new ENTITIES.Token(ctx, sprite, 500, points, that);
+						return new ENTITIES.Token(ctx, ASSETS.images.bananas, 500, pointses, that);
 					}, 10);
+					entities.push(bananaTokens);
 					
 					// get some tokens
 					var i = 3;
@@ -243,8 +240,6 @@ var GAME = (function () {
 					}
 					
 					that.update = function (interval) {
-						cherryTokens.forEach(function (token) { token.update(interval); });
-						bananaTokens.forEach(function (token) { token.update(interval); });
 						for (var i = 0, n = entities.length; i < n; i++) entities[i].update(interval);
 						
 						checkCollisions();
@@ -287,8 +282,6 @@ var GAME = (function () {
 							ctx.fill();
 						}
 						
-						cherryTokens.forEach(function (token) { token.draw(); });
-						bananaTokens.forEach(function (token) { token.draw(); });
 						for (var i = 0, n = entities.length; i < n; i++) entities[i].draw();
 					};
 					

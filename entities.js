@@ -194,17 +194,22 @@ var ENTITIES = (function () {
 		that.initialize();
 	};
 	
-	exports.Token = function (ctx, sprite, pointValue, points, game) {
+	exports.Token = function (ctx, sprite, pointValue, pointses, game) {
 		var that = this;
 		
 		that.position = new ENGINE.Vector2();
-		that.velocity = new ENGINE.Vector2();
-		that.boundary = new ENGINE.AABB();
 		
 		var SPRITE_SCALE_FACTOR = 3;
 		var aspectRatio = sprite.width/sprite.height;
 		that.width = sprite.width * SPRITE_SCALE_FACTOR;
 		that.height = that.width/aspectRatio;
+		
+		that.boundary = new ENGINE.AABB(
+			that.position.x - that.width/2,
+			that.position.y - that.height/2,
+			that.width,
+			that.height
+		);
 		
 		var chaChing = new Audio('sounds/cha-ching.mp3');
 		chaChing.volume = 0.1;
@@ -216,8 +221,7 @@ var ENTITIES = (function () {
 			t += 5 * interval;
 			while (t > Math.PI*2) t -= Math.PI*2;
 			that.position.y += Math.sin(t) * 0.2;
-			
-			that.constructor.prototype.update.call(that, interval);
+			that.boundary.moveTo(that.position);
 		};
 		
 		that.draw = function () {
@@ -228,13 +232,13 @@ var ENTITIES = (function () {
 			if (collidable instanceof exports.Ball) {
 				chaChing.replay();
 				
-				points.initialize();
+				/* points.initialize();
 				points.value = pointValue * game.multiplier;
 				points.alignment = 'center';
 				points.position.x = that.position.x;
 				points.position.y = that.position.y;
 				
-				game.score += pointValue * game.multiplier;
+				game.score += pointValue * game.multiplier; */
 				
 				// temp!! move to random location
 				that.position.x = Math.randRange(100, ctx.canvas.width-100);
@@ -242,7 +246,6 @@ var ENTITIES = (function () {
 			}
 		};
 	};
-	exports.Token.prototype = new exports.Entity();
 	
 	exports.EntityPool = function (createEntity, count) {
 		var that = this;
@@ -278,6 +281,14 @@ var ENTITIES = (function () {
 		that.putBack = function (entity) {
 			var i = entities.indexOf(entity);
 			if (i > -1) active[i] = false;
+		};
+		
+		that.update = function (interval) {
+			that.forEach(function (entity) { entity.update(interval); });
+		};
+		
+		that.draw = function () {
+			that.forEach(function (entity) { entity.draw(); });
 		};
 	};
 	
