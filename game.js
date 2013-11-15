@@ -32,16 +32,17 @@ var GAME = (function () {
 					that.onKeyDown = ENGINE.streamify();
 					that.onButtonDown = ENGINE.streamify();
 					
-					// returns a function that returns `item` if `item` is in the list of items supplied to ifOneOf
-					function ifOneOf(/* item1, item2 ... */) {
+					// experimental
+					// returns a function that returns `item` if `item` is in the given list
+					function allow(/* item1, item2 ... */) {
 						var items = Array.prototype.slice.call(arguments);
 						return function (item) {
 							if (items.indexOf(item) > -1) return item;
 						};
 					}
 					
-					that.onKeyDown.then(ifOneOf(ENGINE.Keyboard.keys.enter))
-						.merge(that.onButtonDown.then(ifOneOf(ENGINE.Gamepad.buttons.start, ENGINE.Gamepad.buttons.a)))
+					that.onKeyDown.then(allow(ENGINE.Keyboard.keys.enter))
+						.or(that.onButtonDown.then(allow(ENGINE.Gamepad.buttons.start, ENGINE.Gamepad.buttons.a)))
 						.then(function () { changeState(states.main); });
 					
 					that.update = function (deltaTime) {
@@ -164,7 +165,7 @@ var GAME = (function () {
 					that.onRightStick({ x: 0, y: 0 });
 					
 					that.onLeftStick
-						.merge(that.onRightStick, function (vector1, vector2) {
+						.or(that.onRightStick, function (vector1, vector2) {
 							var y = vector1.y + vector2.y;
 							if (y > 1) return 1;
 							else if (y < -1) return -1;
@@ -311,7 +312,7 @@ var GAME = (function () {
 						that.onButtonDown = ENGINE.streamify();
 						
 						that.onKeyDown.then(function (key) { if (key === ENGINE.Keyboard.keys.esc) return key; })
-							.merge(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start) return button; }))
+							.or(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start) return button; }))
 							.then(function () { changeState(notPausedState); });
 						
 						that.onMouseMove = ENGINE.noop;
@@ -373,11 +374,11 @@ var GAME = (function () {
 									that.onButtonDown = ENGINE.streamify();
 									
 									that.onKeyDown.then(function (key) { if (key === ENGINE.Keyboard.keys.esc) return key; })
-										.merge(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start) return button; }))
+										.or(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start) return button; }))
 										.then(function () { changeState(states.servingPaused); });
 									
 									that.onKeyDown.then(function (key) { if (key === ENGINE.Keyboard.keys.enter) return key; })
-										.merge(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.a) return button; }))
+										.or(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.a) return button; }))
 										.then(function () { remaining = Math.ceil(remaining - 1); });
 								}
 								
@@ -413,7 +414,7 @@ var GAME = (function () {
 									that.onButtonDown = ENGINE.streamify();
 									
 									that.onKeyDown.then(function (key) { if (key === ENGINE.Keyboard.keys.esc) return key; })
-										.merge(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start) return button; }))
+										.or(that.onButtonDown.then(function (button) { if (button === ENGINE.Gamepad.buttons.start) return button; }))
 										.then(function () { changeState(states.playingPaused); });
 								}
 								
@@ -456,7 +457,7 @@ var GAME = (function () {
 							// press *almost* any key to continue
 							that.onKeyDown.then(function (key) { if (ENGINE.Keyboard.modifiers.indexOf(key) === -1) return key; })
 								// needs work -- includes triggers, D-pad, etc.
-								.merge(that.onButtonDown)
+								.or(that.onButtonDown)
 								.then(function () { changeState(states.title); });
 						}
 						

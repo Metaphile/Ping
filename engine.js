@@ -47,7 +47,7 @@ var ENGINE = (function () {
 		
 		function streamify(f) {
 			// looks like a stream; don't rewrap
-			if (f && 'merge' in f && 'then' in f) return f;
+			if (f && 'or' in f && 'then' in f) return f;
 			
 			f = f || identity;
 			var children = [];
@@ -71,7 +71,7 @@ var ENGINE = (function () {
 				return g;
 			};
 			
-			stream.merge = function (g, operator) {
+			stream.or = function (g, operator) {
 				g = streamify(g);
 				operator = operator || identity;
 				var merged = streamify();
