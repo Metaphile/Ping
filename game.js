@@ -270,43 +270,43 @@ var GAME = (function () {
 						var HEIGHT = 22;
 						
 						ctx.fillStyle = 'gray';
-						ctx.fillRect(LEFT, WALL_THICKNESS/2 - HEIGHT/2, WIDTH, HEIGHT);
+						ctx.fillRect(LEFT, Math.round(WALL_THICKNESS/2 - HEIGHT/2 - exports.SPRITE_SCALE_FACTOR/2), WIDTH, HEIGHT);
 						ctx.fillStyle = 'white';
-						ctx.fillRect(LEFT, WALL_THICKNESS/2 - HEIGHT/2, multiplierResetIntervalRemaining/multiplierResetInterval * WIDTH, HEIGHT);
+						ctx.fillRect(LEFT, Math.round(WALL_THICKNESS/2 - HEIGHT/2 - exports.SPRITE_SCALE_FACTOR/2), multiplierResetIntervalRemaining/multiplierResetInterval * WIDTH, HEIGHT);
 						
 						ctx.textAlign = 'center';
 						ctx.font = 'bold 18px monospace';
 						ctx.fillStyle = 'black';
-						ctx.fillText('×' + that.multiplier, LEFT + WIDTH/2, 31);
+						ctx.fillText('×' + that.multiplier, LEFT + WIDTH/2, 31 - exports.SPRITE_SCALE_FACTOR/2);
 					}
 					
-					that.draw = function () {
-						// score
-						
+					function drawScore() {
 						var scoreText = '$' + that.score.withCommas();
 						ctx.textAlign = 'center';
 						ctx.font = 'bold 30px monospace';
-						ctx.fillStyle = 'gray';
-						ctx.fillText(scoreText, ctx.canvas.width/2 + 2, 34 + 2);
 						ctx.fillStyle = 'white';
-						ctx.fillText(scoreText, ctx.canvas.width/2, 34);
-						
-						drawMultiplier();
-						
-						// spare balls (heh)
-						
+						ctx.fillText(scoreText, ctx.canvas.width/2, 34 - exports.SPRITE_SCALE_FACTOR/2);
+					}
+					
+					function drawSpareBalls() {
 						var SYMBOL_RADIUS = 7;
 						var SPACING = 6;
 						var LEFT = ctx.canvas.width - (TOTAL_BALLS * (SYMBOL_RADIUS*2 + SPACING)) + SYMBOL_RADIUS - 100;
 						
 						for (var i = 0; i < TOTAL_BALLS; i++) {
 							ctx.beginPath();
-							ctx.arc(LEFT + i * (SYMBOL_RADIUS*2 + SPACING), WALL_THICKNESS/2, SYMBOL_RADIUS, 0, Math.PI * 2);
+							ctx.arc(LEFT + i * (SYMBOL_RADIUS*2 + SPACING), WALL_THICKNESS/2 - exports.SPRITE_SCALE_FACTOR/2, SYMBOL_RADIUS, 0, Math.PI * 2);
 							ctx.fillStyle = (i < spareBalls ? 'white' : 'gray');
 							ctx.fill();
 						}
-						
+					}
+					
+					that.draw = function () {
 						for (var i = 0, n = entities.length; i < n; i++) entities[i].draw();
+						
+						drawMultiplier();
+						drawScore();
+						drawSpareBalls();
 					};
 					
 					function Paused(notPausedState) {
