@@ -47,7 +47,7 @@ var GAME = (function () {
 						.then(function () { changeState(states.main); });
 					
 					// doesn't work when merged above??
-					that.onMouseDown.then(function (event) { console.log('hi'); if (event.button === 0) return event; }).then(function () { changeState(states.main); });
+					that.onMouseDown.then(function (event) { if (event.button === 0) return event; }).then(function () { changeState(states.main); });
 					
 					that.update = function (deltaTime) {
 						elapsed += deltaTime;
@@ -61,15 +61,15 @@ var GAME = (function () {
 						var HORIZONTAL_OFFSET = 260;
 						var VERTICAL_OFFSET = -35;
 						
-						var aspectRatio = ASSETS.images.cherries.width/ASSETS.images.cherries.height;
-						var scaledWidth = ASSETS.images.cherries.width * 6;
+						var aspectRatio = ENTITIES.images.cherries.width/ENTITIES.images.cherries.height;
+						var scaledWidth = ENTITIES.images.cherries.width * 6;
 						var scaledHeight = scaledWidth/aspectRatio;
-						ctx.drawImage(ASSETS.images.cherries, HORIZONTAL_OFFSET - scaledWidth/2, ctx.canvas.height/2 - scaledHeight/2 + VERTICAL_OFFSET, scaledWidth, scaledHeight);
+						ctx.drawImage(ENTITIES.images.cherries, HORIZONTAL_OFFSET - scaledWidth/2, ctx.canvas.height/2 - scaledHeight/2 + VERTICAL_OFFSET, scaledWidth, scaledHeight);
 						
-						var aspectRatio = ASSETS.images.bananas.width/ASSETS.images.bananas.height;
-						var scaledWidth = ASSETS.images.bananas.width * 6;
+						var aspectRatio = ENTITIES.images.bananas.width/ENTITIES.images.bananas.height;
+						var scaledWidth = ENTITIES.images.bananas.width * 6;
 						var scaledHeight = scaledWidth/aspectRatio;
-						ctx.drawImage(ASSETS.images.bananas, ctx.canvas.width - HORIZONTAL_OFFSET - scaledWidth/2, ctx.canvas.height/2 - scaledHeight/2 + VERTICAL_OFFSET, scaledWidth, scaledHeight);
+						ctx.drawImage(ENTITIES.images.bananas, ctx.canvas.width - HORIZONTAL_OFFSET - scaledWidth/2, ctx.canvas.height/2 - scaledHeight/2 + VERTICAL_OFFSET, scaledWidth, scaledHeight);
 					}
 					
 					that.draw = function () {
@@ -138,12 +138,12 @@ var GAME = (function () {
 					entities.push(ball);
 					
 					var cherryTokens = new ENTITIES.EntityPool(function () {
-						return new ENTITIES.Token(ctx, ASSETS.images.cherries, 100, pointses, that);
+						return new ENTITIES.Token(ctx, ENTITIES.images.cherries, 100, pointses, that);
 					}, 10);
 					entities.push(cherryTokens);
 					
 					var bananaTokens = new ENTITIES.EntityPool(function () {
-						return new ENTITIES.Token(ctx, ASSETS.images.bananas, 500, pointses, that);
+						return new ENTITIES.Token(ctx, ENTITIES.images.bananas, 500, pointses, that);
 					}, 10);
 					entities.push(bananaTokens);
 					
@@ -491,7 +491,7 @@ var GAME = (function () {
 								.then(function () { changeState(states.title); });
 							
 							// doesn't work when merged above??
-							that.onMouseDown.then(function (event) { console.log('hi'); if (event.button === 0) return event; }).then(function () { changeState(states.title); });
+							that.onMouseDown.then(function (event) { if (event.button === 0) return event; }).then(function () { changeState(states.title); });
 						}
 						
 						GameOver.prototype = that; // states.main

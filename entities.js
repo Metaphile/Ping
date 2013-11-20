@@ -3,6 +3,45 @@ var ENTITIES = (function () {
 	
 	var exports = {};
 	
+	exports.loadImagesThen = function (onLoaded) {
+		var paths = {
+			cherries: 'images/cherries.png',
+			bananas: 'images/bananas.png'
+		};
+		
+		var images = {};
+		
+		// every time an image loads, check whether *all* images are loaded
+		function checkIfDone() {
+			for (var name in images) {
+				// skip inherited properties
+				if (!images.hasOwnProperty(name)) continue;
+				// at least one image isn't loaded; keep waiting
+				if (!images[name].complete) return;
+			}
+			
+			// if we made it this far, we're done
+			exports.images = images;
+			onLoaded();
+		}
+		
+		// first, create an empty image object for each path
+		for (var name in paths) {
+			if (!paths.hasOwnProperty(name)) continue;
+			images[name] = new Image();
+		}
+		
+		// then, register a load event handler and start loading
+		for (var name in images) {
+			if (!images.hasOwnProperty(name)) continue;
+			images[name].onload = checkIfDone;
+			images[name].src = paths[name];
+		}
+		
+		// I've read that if the images are cached, the load event won't fire
+		checkIfDone();
+	};
+	
 	exports.Wall = function (ctx, left, top, width, height) {
 		var that = this;
 		

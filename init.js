@@ -1,13 +1,7 @@
 window.onload = function () {
 	'use strict';
 	
-	ASSETS.loadImages({
-		cherries: 'images/cherries.png',
-		bananas: 'images/bananas.png'
-	}, function (images) {
-		// when *all* images are loaded, store them in the assets module for convenience
-		ASSETS.images = images;
-		
+	ENTITIES.loadImagesThen(function () {
 		// continue initializing the game
 		
 		var ctx = document.getElementById('canvas1').getContext('2d');
