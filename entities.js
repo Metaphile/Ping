@@ -266,7 +266,9 @@ var ENTITIES = (function () {
 			function Main() {
 				var that = this;
 				
-				that.onEnter = ENGINE.noop;
+				that.onEnter = function () {
+					changeState(states.spawning);
+				};
 				
 				that.position = new ENGINE.Vector2();
 				
@@ -284,23 +286,53 @@ var ENTITIES = (function () {
 				states.spawning = (function () {
 					function Spawning() {
 						var that = this;
+						var SPAWN_DURATION = 3, spawnDurationElapsed;
 						
-						that.onEnter = ENGINE.noop;
+						that.onEnter = function () {
+							spawnDurationElapsed = 0;
+						};
 						
-						// ...
+						that.update = function (deltaTime) {
+							spawnDurationElapsed += deltaTime;
+							
+							if (spawnDurationElapsed >= SPAWN_DURATION) changeState(states.normal);
+						};
+						
+						that.draw = function () {
+							var ratio = spawnDurationElapsed/SPAWN_DURATION;
+							var angle = ratio * Math.PI/2;
+							
+							var width = that.width * Math.sin(angle);
+							var height = that.height / Math.sin(angle);
+							
+							ctx.save();
+							ctx.globalAlpha = ratio;
+							ctx.drawImage(sprite, that.position.x - width/2, that.position.y - height/2, width, height);
+							ctx.restore();
+						};
 					}
 					
 					Spawning.prototype = that; // states.main
 					return new Spawning();
 				}());
 				
-				that.update = function (deltaTime) {
-					that.boundary.moveTo(that.position);
-				};
-				
-				that.draw = function () {
-					ctx.drawImage(sprite, that.position.x - that.width/2, that.position.y - that.height/2, that.width, that.height);
-				};
+				states.normal = (function () {
+					function Normal() {
+						var that = this;
+						that.onEnter = ENGINE.noop;
+						
+						that.update = function (deltaTime) {
+							that.boundary.moveTo(that.position);
+						};
+						
+						that.draw = function () {
+							ctx.drawImage(sprite, that.position.x - that.width/2, that.position.y - that.height/2, that.width, that.height);
+						};
+					}
+					
+					Normal.prototype = that; // states.main
+					return new Normal();
+				}());
 				
 				states.dying = (function () {
 					function Dying() {
