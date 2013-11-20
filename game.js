@@ -133,10 +133,6 @@ var GAME = (function () {
 					var pointses = new ENTITIES.EntityPool(function () {
 						return new ENTITIES.Points(ctx);
 					}, 10);
-					entities.push(pointses);
-					
-					var ball = new ENTITIES.Ball(ctx);
-					entities.push(ball);
 					
 					var cherryTokens = new ENTITIES.EntityPool(function () {
 						return new ENTITIES.Token(ctx, ENTITIES.images.cherries, 100, pointses, that);
@@ -148,10 +144,15 @@ var GAME = (function () {
 					}, 10);
 					entities.push(bananaTokens);
 					
+					var ball = new ENTITIES.Ball(ctx);
+					entities.push(ball);
+					
+					entities.push(pointses);
+					
 					// get some tokens
-					var i = 3;
+					var i = 5;
 					while (i--) cherryTokens.getNext();
-					var i = 1;
+					var i = 3;
 					while (i--) bananaTokens.getNext();
 					
 					that.onEnter = function () {
