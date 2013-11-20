@@ -284,6 +284,11 @@ var GAME = (function () {
 						var scoreText = '$' + that.score.withCommas();
 						ctx.textAlign = 'center';
 						ctx.font = 'bold 30px monospace';
+						
+						ctx.strokeStyle = 'rgba(255, 255, 127, 0.5)';
+						ctx.lineWidth = 2;
+						ctx.strokeText(scoreText, ctx.canvas.width/2, 34 - exports.SPRITE_SCALE_FACTOR/2);
+						
 						ctx.fillStyle = 'white';
 						ctx.fillText(scoreText, ctx.canvas.width/2, 34 - exports.SPRITE_SCALE_FACTOR/2);
 					}

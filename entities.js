@@ -170,8 +170,6 @@ var ENTITIES = (function () {
 					// -1 ... 1
 					t /= (collidable.height + that.radius*2) / 2;
 					var accuracy = 1 - Math.abs(t);
-					// add a bit of randomness
-					t += Math.randRange(-0.1, 0.1);
 					
 					var bounceAngle = t * 70;
 					
@@ -195,7 +193,7 @@ var ENTITIES = (function () {
 		
 		that.value = 0;
 		
-		var FADE_DURATION = 1.6, fadeDurationElapsed;
+		var FADE_DURATION = 3, fadeDurationElapsed;
 		
 		that.initialize = function () {
 			fadeDurationElapsed = 0;
@@ -206,16 +204,25 @@ var ENTITIES = (function () {
 				fadeDurationElapsed += deltaTime;
 				
 				// float up
-				that.position.y -= 20 * deltaTime;
+				that.position.y -= 2000 * (1 - Math.pow(fadeDurationElapsed/FADE_DURATION, 0.008)) * deltaTime;
 			}
 		};
 		
 		that.draw = function () {
 			ctx.textAlign = 'center';
-			ctx.font = 'bold 16px monospace';
+			ctx.font = 'bold 18px monospace';
 			
 			var text = '$' + that.value.withCommas();
-			var opacity = 1 - fadeDurationElapsed/FADE_DURATION;
+			var opacity = 1 - Math.pow(fadeDurationElapsed/FADE_DURATION, 2);
+			
+			ctx.strokeStyle = 'rgba(0, 0, 0, ' + opacity + ')';
+			ctx.lineWidth = 4;
+			ctx.strokeText(text, that.position.x, that.position.y);
+			
+			ctx.strokeStyle = 'rgba(255, 255, 127, ' + opacity + ')';
+			ctx.lineWidth = 2;
+			ctx.strokeText(text, that.position.x, that.position.y);
+			
 			ctx.fillStyle = 'rgba(255, 255, 255, ' + opacity + ')';
 			ctx.fillText(text, that.position.x, that.position.y);
 		};
