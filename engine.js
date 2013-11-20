@@ -307,7 +307,7 @@ var ENGINE = (function () {
 			ctx.moveTo(toX, toY);
 			ctx.lineTo(toX - HEAD_SIZE*Math.cos(vectorAngle + HEAD_POINTINESS), toY - HEAD_SIZE*Math.sin(vectorAngle + HEAD_POINTINESS));
 			
-			ctx.lineWidth = 4;
+			ctx.lineWidth = 1;
 			ctx.strokeStyle = 'darkorange';
 			ctx.stroke();
 		};
@@ -367,7 +367,7 @@ var ENGINE = (function () {
 			
 			ctx.rect(that.left, that.top, that.right-that.left, that.bottom-that.top);
 			
-			ctx.lineWidth = 2;
+			ctx.lineWidth = 1;
 			ctx.strokeStyle = 'red';
 			ctx.stroke();
 		};

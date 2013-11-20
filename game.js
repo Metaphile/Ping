@@ -3,6 +3,8 @@ var GAME = (function () {
 	
 	var exports = {};
 	
+	exports.SPRITE_SCALE_FACTOR = 3;
+	
 	exports.Game = function (input, ctx) {
 		var that = this;
 		var states = {}, currentState;

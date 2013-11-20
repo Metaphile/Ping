@@ -50,7 +50,7 @@ var ENTITIES = (function () {
 		that.update = ENGINE.noop;
 		
 		that.draw = function () {
-			ctx.lineWidth = 3;
+			ctx.lineWidth = GAME.SPRITE_SCALE_FACTOR;
 			ctx.strokeStyle = 'white';
 			
 			ctx.beginPath();
@@ -228,9 +228,8 @@ var ENTITIES = (function () {
 		
 		that.position = new ENGINE.Vector2();
 		
-		var SPRITE_SCALE_FACTOR = 3;
 		var aspectRatio = sprite.width/sprite.height;
-		that.width = sprite.width * SPRITE_SCALE_FACTOR;
+		that.width = sprite.width * GAME.SPRITE_SCALE_FACTOR;
 		that.height = that.width/aspectRatio;
 		
 		that.boundary = new ENGINE.AABB(
