@@ -90,7 +90,6 @@ var GAME = (function () {
 				}
 				
 				Title.prototype = that; // states.base
-				
 				return new Title();
 			}());
 			
@@ -414,7 +413,6 @@ var GAME = (function () {
 								}
 								
 								ServingNotPaused.prototype = that; // states.serving
-								
 								return new ServingNotPaused();
 							}());
 							
@@ -423,7 +421,6 @@ var GAME = (function () {
 						}
 						
 						Serving.prototype = that; // states.main
-						
 						return new Serving();
 					}());
 					
@@ -450,7 +447,6 @@ var GAME = (function () {
 								}
 								
 								PlayingNotPaused.prototype = that; // states.playing
-								
 								return new PlayingNotPaused();
 							}());
 							
@@ -459,7 +455,6 @@ var GAME = (function () {
 						}
 						
 						Playing.prototype = that; // states.main
-						
 						return new Playing();
 					}());
 					
@@ -497,13 +492,11 @@ var GAME = (function () {
 						}
 						
 						GameOver.prototype = that; // states.main
-						
 						return new GameOver();
 					}());
 				}
 				
 				Main.prototype = that; // states.base
-				
 				return new Main();
 			}());
 		};

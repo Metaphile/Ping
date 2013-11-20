@@ -225,8 +225,104 @@ var ENTITIES = (function () {
 	
 	exports.Token = function (ctx, sprite, pointValue, pointses, game) {
 		var that = this;
+		var states = {}, currentState;
 		
-		that.position = new ENGINE.Vector2();
+		function changeState(newState) {
+			currentState = newState;
+			currentState.onEnter();
+		}
+		
+		states.base = {
+			onEnter: function () { changeState(states.main); }
+		};
+		
+		// creates public properties that delegate to the current state
+		function delegateProperties(/* ... */) {
+			var names = Array.prototype.slice.call(arguments);
+			
+			names.forEach(function (name) {
+				Object.defineProperty(that, name, {
+					get: function () { return currentState[name] },
+					set: function (value) { currentState[name] = value; }
+				});
+			});
+		}
+		
+		// creates public methods that delegate to the current state
+		function delegateMethods(/* ... */) {
+			var names = Array.prototype.slice.call(arguments);
+			
+			names.forEach(function (name) {
+				// default implementation
+				states.base[name] = ENGINE.noop;
+				that[name] = function () { currentState[name].apply(currentState, arguments); };
+			});
+		}
+		
+		delegateProperties('position', 'width', 'height', 'boundary');
+		delegateMethods('update', 'draw', 'onCollision');
+		
+		states.main = (function () {
+			function Main() {
+				var that = this;
+				
+				that.onEnter = ENGINE.noop;
+				
+				that.position = new ENGINE.Vector2();
+				
+				var aspectRatio = sprite.width/sprite.height;
+				that.width = sprite.width * GAME.SPRITE_SCALE_FACTOR;
+				that.height = that.width/aspectRatio;
+				
+				that.boundary = new ENGINE.AABB(
+					that.position.x - that.width/2,
+					that.position.y - that.height/2,
+					that.width,
+					that.height
+				);
+				
+				states.spawning = (function () {
+					function Spawning() {
+						var that = this;
+						
+						that.onEnter = ENGINE.noop;
+						
+						// ...
+					}
+					
+					Spawning.prototype = that; // states.main
+					return new Spawning();
+				}());
+				
+				that.update = function (deltaTime) {
+					that.boundary.moveTo(that.position);
+				};
+				
+				that.draw = function () {
+					ctx.drawImage(sprite, that.position.x - that.width/2, that.position.y - that.height/2, that.width, that.height);
+				};
+				
+				states.dying = (function () {
+					function Dying() {
+						var that = this;
+						
+						that.onEnter = ENGINE.noop;
+						
+						// ...
+					}
+					
+					Dying.prototype = that; // states.main
+					return new Dying();
+				}());
+			}
+			
+			Main.prototype = states.base;
+			return new Main();
+		}());
+		
+		changeState(states.base);
+		
+		/* that.position = new ENGINE.Vector2();
 		
 		var aspectRatio = sprite.width/sprite.height;
 		that.width = sprite.width * GAME.SPRITE_SCALE_FACTOR;
@@ -273,7 +369,7 @@ var ENTITIES = (function () {
 				that.position.x = Math.randRange(100, ctx.canvas.width-100);
 				that.position.y = Math.randRange(100, ctx.canvas.height-100);
 			}
-		};
+		}; */
 	};
 	
 	exports.EntityPool = function (createEntity, count) {
