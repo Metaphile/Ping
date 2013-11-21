@@ -506,21 +506,31 @@ var GAME = (function () {
 			}());
 		};
 		
-		// creates a public method that delegates to the current state
-		function delegate(method) {
-			// default implementation
-			states.base[method] = ENGINE.noop;
-			that[method] = function () { currentState[method].apply(currentState, arguments); };
+		// creates public properties that delegate to the current state
+		function delegateProperties(/* ... */) {
+			var names = Array.prototype.slice.call(arguments);
+			
+			names.forEach(function (name) {
+				Object.defineProperty(that, name, {
+					get: function () { return currentState[name] },
+					set: function (value) { currentState[name] = value; }
+				});
+			});
 		}
 		
-		delegate('onKeyDown');
-		delegate('onMouseMove');
-		delegate('onMouseDown');
-		delegate('onButtonDown');
-		delegate('onLeftStick');
-		delegate('onRightStick');
-		delegate('update');
-		delegate('draw');
+		// creates public methods that delegate to the current state
+		function delegateMethods(/* ... */) {
+			var names = Array.prototype.slice.call(arguments);
+			
+			names.forEach(function (name) {
+				// default implementation
+				states.base[name] = ENGINE.noop;
+				that[name] = function () { currentState[name].apply(currentState, arguments); };
+			});
+		}
+		
+		// todo: delegate properties
+		delegateMethods('onKeyDown', 'onMouseMove', 'onMouseDown', 'onButtonDown', 'onLeftStick', 'onRightStick', 'update', 'draw');
 		
 		// subscribe to input events
 		input.keyboard.keyDown.then(that.onKeyDown);
