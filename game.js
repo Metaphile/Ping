@@ -359,7 +359,6 @@ var GAME = (function () {
 							var that = this;
 							
 							var DURATION = 3, remaining;
-							var BALL_SPEED = 400;
 							
 							that.onEnter = function () {
 								if (spareBalls <= 0) return changeState(states.gameOver);
@@ -399,8 +398,8 @@ var GAME = (function () {
 											var angle = Math.randRange(-45, 45);
 											// randomly serve to the left or right
 											if (Math.random() > 0.5) { angle += 180; }
-											ball.velocity.x = Math.cos(angle * Math.PI/180) * BALL_SPEED;
-											ball.velocity.y = Math.sin(angle * Math.PI/180) * BALL_SPEED;
+											ball.velocity.x = Math.cos(angle * Math.PI/180) * ball.SPEED;
+											ball.velocity.y = Math.sin(angle * Math.PI/180) * ball.SPEED;
 											
 											changeState(states.playing);
 										}

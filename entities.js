@@ -110,6 +110,8 @@ var ENTITIES = (function () {
 		// disabled ball can still collide with tokens :-(
 		that.enabled = true;
 		
+		that.SPEED = 400;
+		
 		that.position = new ENGINE.Vector2();
 		that.velocity = new ENGINE.Vector2();
 		that.radius = 12;
@@ -173,9 +175,8 @@ var ENTITIES = (function () {
 					
 					var bounceAngle = t * 70;
 					
-					var ballSpeed = that.velocity.length();
-					that.velocity.x = Math.cos(bounceAngle * Math.PI/180) * ballSpeed * surfaceNormal.x;
-					that.velocity.y = Math.sin(bounceAngle * Math.PI/180) * ballSpeed;
+					that.velocity.x = Math.cos(bounceAngle * Math.PI/180) * that.SPEED * surfaceNormal.x;
+					that.velocity.y = Math.sin(bounceAngle * Math.PI/180) * that.SPEED;
 				} else {
 					// bounce normally
 					boop.replay();
