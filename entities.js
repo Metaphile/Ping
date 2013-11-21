@@ -231,7 +231,7 @@ var ENTITIES = (function () {
 		that.initialize();
 	};
 	
-	exports.Token = function (ctx, sprite, pointValue, pointses, game) {
+	exports.Token = function (ctx, sprite, value, game) {
 		var that = this;
 		var states = {}, currentState;
 		
@@ -273,6 +273,7 @@ var ENTITIES = (function () {
 		states.main = (function () {
 			function Main() {
 				var that = this;
+				that.value = value;
 				
 				that.onEnter = function () {
 					changeState(states.spawning);
@@ -318,10 +319,8 @@ var ENTITIES = (function () {
 						that.draw = function () {
 							var ratio = spawnDurationElapsed/SPAWN_DURATION;
 							
-							// var width = that.width * f(ratio);
 							var width = that.width * f(ratio);
 							var height = that.height * f(ratio);
-							// var height = that.height / (f(ratio) || Number.MIN_VALUE);
 							
 							ctx.save();
 							ctx.globalAlpha = f(ratio) * 0.25;
@@ -350,16 +349,7 @@ var ENTITIES = (function () {
 						that.onCollision = function (collidable, escapeVector) {
 							if (collidable instanceof exports.Ball) {
 								chaChing.replay();
-								
-								var points = pointses.getNext();
-								points.initialize();
-								points.value = pointValue * game.multiplier;
-								points.alignment = 'center';
-								points.position.x = that.position.x;
-								points.position.y = that.position.y;
-								
-								game.score += pointValue * game.multiplier;
-								
+								game.onTokenCollected(that);
 								changeState(states.dying);
 							}
 						};
