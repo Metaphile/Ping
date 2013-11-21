@@ -136,24 +136,62 @@ var GAME = (function () {
 					
 					var cherryTokens = new ENTITIES.EntityPool(function () {
 						return new ENTITIES.Token(ctx, ENTITIES.images.cherries, 100, that);
-					}, 10);
+					}, 20);
 					entities.push(cherryTokens);
 					
 					var bananaTokens = new ENTITIES.EntityPool(function () {
 						return new ENTITIES.Token(ctx, ENTITIES.images.bananas, 500, that);
-					}, 10);
+					}, 20);
 					entities.push(bananaTokens);
+					
+					var initialTokenSpawner = new function () {
+						var that = this;
+						
+						var NUM_CHERRY_TOKENS = 12, numCherryTokensRemaining;
+						var NUM_BANANA_TOKENS = 4, numBananaTokensRemaining;
+						var SPAWN_INTERVAL = 1/8, spawnIntervalRemaining;
+						
+						that.initialize = function () {
+							numCherryTokensRemaining = NUM_CHERRY_TOKENS;
+							numBananaTokensRemaining = NUM_BANANA_TOKENS;
+							spawnIntervalRemaining = SPAWN_INTERVAL;
+						};
+						
+						that.update = function (deltaTime) {
+							if (numCherryTokensRemaining + numBananaTokensRemaining <= 0) return;
+							
+							spawnIntervalRemaining -= deltaTime;
+							if (spawnIntervalRemaining <= 0) {
+								while (spawnIntervalRemaining <= 0) spawnIntervalRemaining += SPAWN_INTERVAL;
+								
+								var token;
+								while (true) {
+									if (Math.random() >= 0.5 && numCherryTokensRemaining > 0) {
+										token = cherryTokens.getNext();
+										numCherryTokensRemaining--;
+										break;
+									} else if (numBananaTokensRemaining > 0) {
+										token = bananaTokens.getNext();
+										numBananaTokensRemaining--;
+										break;
+									}
+								}
+								
+								token.position.x = Math.randRange(100, ctx.canvas.width-100);
+								token.position.y = Math.randRange(100, ctx.canvas.height-100);
+							}
+						};
+						
+						that.draw = ENGINE.noop;
+						
+						that.initialize();
+					};
+					entities.push(initialTokenSpawner);
 					
 					var ball = new ENTITIES.Ball(ctx);
 					entities.push(ball);
 					
 					entities.push(pointses);
-					
-					// get some tokens
-					var i = 5;
-					while (i--) cherryTokens.getNext();
-					var i = 3;
-					while (i--) bananaTokens.getNext();
 					
 					that.onEnter = function () {
 						score = 0;
@@ -164,15 +202,11 @@ var GAME = (function () {
 						for (var i = 0, n = paddles.length; i < n; i++) paddles[i].position.y = ctx.canvas.height/2;
 						ball.enabled = true;
 						
-						// randomly distribute tokens
-						cherryTokens.forEach(function (token) {
-							token.position.x = Math.randRange(100, ctx.canvas.width-100);
-							token.position.y = Math.randRange(100, ctx.canvas.height-100);
-						});
-						bananaTokens.forEach(function (token) {
-							token.position.x = Math.randRange(100, ctx.canvas.width-100);
-							token.position.y = Math.randRange(100, ctx.canvas.height-100);
-						});
+						// put away any tokens that are currently out
+						cherryTokens.forEach(function (token) { cherryTokens.putBack(token); });
+						bananaTokens.forEach(function (token) { bananaTokens.putBack(token); });
+						
+						initialTokenSpawner.initialize();
 						
 						changeState(states.serving);
 					};
