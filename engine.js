@@ -312,14 +312,13 @@ var ENGINE = (function () {
 	}());
 	
 	// axis-aligned bounding box
-	// todo: absolutely needs work
 	exports.AABB = function (left, top, width, height) {
 		var that = this;
 		
 		that.left   = left;
-		that.right  = left + width;
 		that.top    = top;
-		that.bottom = top + height;
+		that.width  = width;
+		that.height = height;
 		
 		// if line segments A and B are overlapping, return the 1-dimensional vector that will most efficiently clear A from B
 		// otherwise return false
@@ -348,8 +347,8 @@ var ENGINE = (function () {
 		}
 		
 		that.test = function (other) {
-			var xev = escapeVector(that.left, that.right,  other.left, other.right);
-			var yev = escapeVector(that.top,  that.bottom, other.top,  other.bottom);
+			var xev = escapeVector(that.left, that.left + that.width,  other.left, other.left + other.width);
+			var yev = escapeVector(that.top,  that.top  + that.height, other.top,  other.top  + other.height);
 			// no collision
 			if (xev === false || yev === false) return false;
 			
@@ -363,18 +362,16 @@ var ENGINE = (function () {
 		that.draw = function (ctx) {
 			ctx.beginPath();
 			
-			ctx.rect(that.left, that.top, that.right-that.left, that.bottom-that.top);
+			ctx.rect(that.left, that.top, that.width, that.height);
 			
 			ctx.lineWidth = 1;
 			ctx.strokeStyle = 'red';
 			ctx.stroke();
 		};
 		
-		that.moveTo = function (position) {
-			that.left   = position.x - width/2;
-			that.right  = position.x + width/2;
-			that.top    = position.y - height/2;
-			that.bottom = position.y + height/2;
+		that.centerAt = function (position) {
+			that.left = position.x - that.width/2;
+			that.top  = position.y - that.height/2;
 		};
 	};
 	

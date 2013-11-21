@@ -55,10 +55,10 @@ var ENTITIES = (function () {
 			
 			ctx.beginPath();
 			ctx.rect(
-				that.boundary.left + ctx.lineWidth/2,
-				that.boundary.top + ctx.lineWidth/2,
-				that.boundary.right - that.boundary.left - ctx.lineWidth,
-				that.boundary.bottom - that.boundary.top - ctx.lineWidth
+				that.boundary.left   + ctx.lineWidth/2,
+				that.boundary.top    + ctx.lineWidth/2,
+				that.boundary.width  - ctx.lineWidth,
+				that.boundary.height - ctx.lineWidth
 			);
 			
 			ctx.stroke();
@@ -83,7 +83,7 @@ var ENTITIES = (function () {
 		
 		that.update = function (deltaTime) {
 			that.position.add(that.velocity.multipliedBy(deltaTime));
-			that.boundary.moveTo(that.position);
+			that.boundary.centerAt(that.position);
 		};
 		
 		that.draw = function () {
@@ -93,13 +93,13 @@ var ENTITIES = (function () {
 		
 		that.moveTo = function (y) {
 			that.position.y = y;
-			that.boundary.moveTo(that.position);
+			that.boundary.centerAt(that.position);
 		};
 		
 		that.onCollision = function (collidable, escapeVector) {
 			if (collidable instanceof exports.Wall) {
 				that.position.add(escapeVector);
-				that.boundary.moveTo(that.position);
+				that.boundary.centerAt(that.position);
 			}
 		};
 	};
@@ -133,7 +133,7 @@ var ENTITIES = (function () {
 			if (!that.enabled) return;
 			
 			that.position.add(that.velocity.multipliedBy(deltaTime));
-			that.boundary.moveTo(that.position);
+			that.boundary.centerAt(that.position);
 		};
 		
 		that.draw = function () {
@@ -150,7 +150,7 @@ var ENTITIES = (function () {
 				beep.replay();
 				
 				that.position.add(escapeVector);
-				that.boundary.moveTo(that.position);
+				that.boundary.centerAt(that.position);
 				
 				// this is a bit cheating, but since we know that the collidable's boundary is an AABB, then the normalized escape vector is also the surface normal
 				var surfaceNormal = escapeVector.normalized();
@@ -161,7 +161,7 @@ var ENTITIES = (function () {
 				boop.replay();
 				
 				that.position.add(escapeVector);
-				that.boundary.moveTo(that.position);
+				that.boundary.centerAt(that.position);
 				
 				var surfaceNormal = escapeVector.normalized();
 				
@@ -413,7 +413,7 @@ var ENTITIES = (function () {
 					t += 3 * deltaTime;
 					while (t > Math.PI*2) t -= Math.PI*2;
 					that.position.y += Math.sin(t) * 0.2;
-					that.boundary.moveTo(that.position);
+					that.boundary.centerAt(that.position);
 				};
 			}
 			
