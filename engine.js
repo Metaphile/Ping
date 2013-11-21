@@ -236,29 +236,9 @@ var ENGINE = (function () {
 	
 	exports.Vector2 = (function () {
 		function Vector2(x, y) {
-			var that = this;
-			
-			x = x || 0;
-			y = y || 0;
-			
-			Object.defineProperty(that, 'x', {
-				get: function () { return x; },
-				set: function (value) {
-					x = value;
-					that.onChanged(that);
-				}
-			});
-			
-			Object.defineProperty(that, 'y', {
-				get: function () { return y; },
-				set: function (value) {
-					y = value;
-					that.onChanged(that);
-				}
-			});
+			this.x = x || 0;
+			this.y = y || 0;
 		}
-		
-		Vector2.prototype.onChanged = exports.noop;
 		
 		Vector2.prototype.inverted = function () {
 			return new Vector2(-this.x, -this.y);
