@@ -234,63 +234,79 @@ var ENGINE = (function () {
 		return Gamepad;
 	}());
 	
-	exports.Vector2 = function (x, y) {
-		var that = this;
+	exports.Vector2 = (function () {
+		function Vector2(x, y) {
+			var that = this;
+			
+			x = x || 0;
+			y = y || 0;
+			
+			Object.defineProperty(that, 'x', {
+				get: function () { return x; },
+				set: function (value) {
+					x = value;
+					that.onChanged(that);
+				}
+			});
+			
+			Object.defineProperty(that, 'y', {
+				get: function () { return y; },
+				set: function (value) {
+					y = value;
+					that.onChanged(that);
+				}
+			});
+		}
 		
-		that.x = x || 0;
-		that.y = y || 0;
+		Vector2.prototype.onChanged = exports.noop;
 		
-		that.inverse = function () {
-			return new exports.Vector2(-that.x, -that.y);
+		Vector2.prototype.inverted = function () {
+			return new Vector2(-this.x, -this.y);
 		};
 		
-		that.add = function (vector) {
-			that.x += vector.x;
-			that.y += vector.y;
+		Vector2.prototype.add = function (vector) {
+			this.x += vector.x;
+			this.y += vector.y;
 		};
 		
-		that.sum = function (vector) {
-			return new exports.Vector2(that.x + vector.x, that.y + vector.y);
+		Vector2.prototype.length = function () {
+			return Math.sqrt(this.x*this.x + this.y*this.y);
 		};
 		
-		that.length = function () {
-			return Math.sqrt(that.x*that.x + that.y*that.y);
+		Vector2.prototype.angle = function () {
+			return Math.atan2(this.y, this.x);
 		};
 		
-		that.angle = function () {
-			return Math.atan2(that.y, that.x);
+		Vector2.prototype.difference = function (vector) {
+			return new Vector2(this.x - vector.x, this.y - vector.y);
 		};
 		
-		that.difference = function (vector) {
-			return new exports.Vector2(that.x-vector.x, that.y-vector.y);
+		Vector2.prototype.dot = function (vector) {
+			return this.x*vector.x + this.y*vector.y;
 		};
 		
-		that.dot = function (vector) {
-			return that.x*vector.x + that.y*vector.y;
+		Vector2.prototype.normalized = function () {
+			var length = this.length();
+			if (length === 0) return new Vector2(0, 0);
+			else return new Vector2(this.x / length, this.y / length);
 		};
 		
-		that.normalized = function () {
-			var length = that.length();
-			if (length === 0) return new exports.Vector2(0, 0);
-			else return new exports.Vector2(that.x / length, that.y / length);
+		Vector2.prototype.multipliedBy = function (scalar) {
+			return new Vector2(this.x * scalar, this.y * scalar);
 		};
 		
-		that.multipliedBy = function (scalar) {
-			return new exports.Vector2(that.x*scalar, that.y*scalar);
-		};
-		
-		that.reflectedAbout = function (normal) {
-			return that.difference(normal.multipliedBy(2 * that.dot(normal)));
+		Vector2.prototype.reflectedAbout = function (normal) {
+			return this.difference(normal.multipliedBy(2 * this.dot(normal)));
 		};
 		
 		// useful for debugging
-		that.draw = function (ctx, fromX, fromY) {
+		Vector2.prototype.draw = function (ctx, fromX, fromY) {
 			fromX = fromX || 0;
 			fromY = fromY || 0;
-			var toX = fromX + that.x;
-			var toY = fromY + that.y;
+			var toX = fromX + this.x;
+			var toY = fromY + this.y;
 			
-			if (that.length() == 0) return;
+			if (this.length() == 0) return;
 			
 			ctx.beginPath();
 			
@@ -301,7 +317,7 @@ var ENGINE = (function () {
 			// arrow head
 			var HEAD_SIZE = 16;
 			var HEAD_POINTINESS = Math.PI/6;
-			var vectorAngle = that.angle();
+			var vectorAngle = this.angle();
 			ctx.moveTo(toX, toY);
 			ctx.lineTo(toX - HEAD_SIZE*Math.cos(vectorAngle - HEAD_POINTINESS), toY - HEAD_SIZE*Math.sin(vectorAngle - HEAD_POINTINESS));
 			ctx.moveTo(toX, toY);
@@ -311,7 +327,9 @@ var ENGINE = (function () {
 			ctx.strokeStyle = 'darkorange';
 			ctx.stroke();
 		};
-	};
+		
+		return Vector2;
+	}());
 	
 	// axis-aligned bounding box
 	// todo: absolutely needs work

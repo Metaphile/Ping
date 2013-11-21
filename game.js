@@ -237,7 +237,7 @@ var GAME = (function () {
 							var escapeVector = token.boundary.test(ball.boundary);
 							if (escapeVector) {
 								token.onCollision(ball, escapeVector);
-								ball.onCollision(token, escapeVector.inverse());
+								ball.onCollision(token, escapeVector.inverted());
 								
 								that.multiplier += 1;
 								multiplierResetIntervalRemaining = multiplierResetInterval;
@@ -247,7 +247,7 @@ var GAME = (function () {
 							var escapeVector = token.boundary.test(ball.boundary);
 							if (escapeVector) {
 								token.onCollision(ball, escapeVector);
-								ball.onCollision(token, escapeVector.inverse());
+								ball.onCollision(token, escapeVector.inverted());
 								
 								that.multiplier += 1;
 								multiplierResetIntervalRemaining = multiplierResetInterval;
