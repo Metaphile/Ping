@@ -300,7 +300,7 @@ var ENTITIES = (function () {
 				states.spawning = (function () {
 					function Spawning() {
 						var that = this;
-						var SPAWN_DURATION = 1, spawnDurationElapsed;
+						var SPAWN_DURATION = 0.8, spawnDurationElapsed;
 						
 						that.onEnter = function () {
 							spawnDurationElapsed = 0;
@@ -317,18 +317,14 @@ var ENTITIES = (function () {
 							if (spawnDurationElapsed >= SPAWN_DURATION) changeState(states.normal);
 						};
 						
-						function f(x) {
-							return x*x;
-						}
-						
 						that.draw = function () {
 							var ratio = spawnDurationElapsed/SPAWN_DURATION;
 							
-							var width = that.width * f(ratio);
-							var height = that.height * f(ratio);
+							var width = ENGINE.tweens.easeOutElastic(null, spawnDurationElapsed, 0, that.width, SPAWN_DURATION * 4.4);
+							var height = ENGINE.tweens.easeOutElastic(null, spawnDurationElapsed, 0, that.height, SPAWN_DURATION * 4.4);
 							
 							ctx.save();
-							ctx.globalAlpha = f(ratio) * 0.25;
+							ctx.globalAlpha = ratio * 0.4;
 							ctx.drawImage(sprite, that.position.x - width/2, that.position.y - height/2, width, height);
 							ctx.restore();
 						};
