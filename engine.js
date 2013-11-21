@@ -3,14 +3,6 @@ var ENGINE = (function () {
 	
 	var exports = {};
 	
-	// true prototypal inheritance
-	// http://javascript.crockford.com/prototypal.html
-	Object.create = function (o) {
-		function F() {}
-		F.prototype = o;
-		return new F();
-	};
-	
 	// clear a possibly transformed canvas
 	// http://stackoverflow.com/a/9722502/40356
 	CanvasRenderingContext2D.prototype.clear = function () {
@@ -234,63 +226,59 @@ var ENGINE = (function () {
 		return Gamepad;
 	}());
 	
-	exports.Vector2 = function (x, y) {
-		var that = this;
+	exports.Vector2 = (function () {
+		function Vector2(x, y) {
+			this.x = x || 0;
+			this.y = y || 0;
+		}
 		
-		that.x = x || 0;
-		that.y = y || 0;
-		
-		that.inverse = function () {
-			return new exports.Vector2(-that.x, -that.y);
+		Vector2.prototype.inverted = function () {
+			return new Vector2(-this.x, -this.y);
 		};
 		
-		that.add = function (vector) {
-			that.x += vector.x;
-			that.y += vector.y;
+		Vector2.prototype.add = function (vector) {
+			this.x += vector.x;
+			this.y += vector.y;
 		};
 		
-		that.sum = function (vector) {
-			return new exports.Vector2(that.x + vector.x, that.y + vector.y);
+		Vector2.prototype.length = function () {
+			return Math.sqrt(this.x*this.x + this.y*this.y);
 		};
 		
-		that.length = function () {
-			return Math.sqrt(that.x*that.x + that.y*that.y);
+		Vector2.prototype.angle = function () {
+			return Math.atan2(this.y, this.x);
 		};
 		
-		that.angle = function () {
-			return Math.atan2(that.y, that.x);
+		Vector2.prototype.difference = function (vector) {
+			return new Vector2(this.x - vector.x, this.y - vector.y);
 		};
 		
-		that.difference = function (vector) {
-			return new exports.Vector2(that.x-vector.x, that.y-vector.y);
+		Vector2.prototype.dot = function (vector) {
+			return this.x*vector.x + this.y*vector.y;
 		};
 		
-		that.dot = function (vector) {
-			return that.x*vector.x + that.y*vector.y;
+		Vector2.prototype.normalized = function () {
+			var length = this.length();
+			if (length === 0) return new Vector2(0, 0);
+			else return new Vector2(this.x / length, this.y / length);
 		};
 		
-		that.normalized = function () {
-			var length = that.length();
-			if (length === 0) return new exports.Vector2(0, 0);
-			else return new exports.Vector2(that.x / length, that.y / length);
+		Vector2.prototype.multipliedBy = function (scalar) {
+			return new Vector2(this.x * scalar, this.y * scalar);
 		};
 		
-		that.multipliedBy = function (scalar) {
-			return new exports.Vector2(that.x*scalar, that.y*scalar);
-		};
-		
-		that.reflectedAbout = function (normal) {
-			return that.difference(normal.multipliedBy(2 * that.dot(normal)));
+		Vector2.prototype.reflectedAbout = function (normal) {
+			return this.difference(normal.multipliedBy(2 * this.dot(normal)));
 		};
 		
 		// useful for debugging
-		that.draw = function (ctx, fromX, fromY) {
+		Vector2.prototype.draw = function (ctx, fromX, fromY) {
 			fromX = fromX || 0;
 			fromY = fromY || 0;
-			var toX = fromX + that.x;
-			var toY = fromY + that.y;
+			var toX = fromX + this.x;
+			var toY = fromY + this.y;
 			
-			if (that.length() == 0) return;
+			if (this.length() == 0) return;
 			
 			ctx.beginPath();
 			
@@ -301,7 +289,7 @@ var ENGINE = (function () {
 			// arrow head
 			var HEAD_SIZE = 16;
 			var HEAD_POINTINESS = Math.PI/6;
-			var vectorAngle = that.angle();
+			var vectorAngle = this.angle();
 			ctx.moveTo(toX, toY);
 			ctx.lineTo(toX - HEAD_SIZE*Math.cos(vectorAngle - HEAD_POINTINESS), toY - HEAD_SIZE*Math.sin(vectorAngle - HEAD_POINTINESS));
 			ctx.moveTo(toX, toY);
@@ -311,17 +299,18 @@ var ENGINE = (function () {
 			ctx.strokeStyle = 'darkorange';
 			ctx.stroke();
 		};
-	};
+		
+		return Vector2;
+	}());
 	
 	// axis-aligned bounding box
-	// todo: absolutely needs work
 	exports.AABB = function (left, top, width, height) {
 		var that = this;
 		
 		that.left   = left;
-		that.right  = left + width;
 		that.top    = top;
-		that.bottom = top + height;
+		that.width  = width;
+		that.height = height;
 		
 		// if line segments A and B are overlapping, return the 1-dimensional vector that will most efficiently clear A from B
 		// otherwise return false
@@ -350,8 +339,8 @@ var ENGINE = (function () {
 		}
 		
 		that.test = function (other) {
-			var xev = escapeVector(that.left, that.right,  other.left, other.right);
-			var yev = escapeVector(that.top,  that.bottom, other.top,  other.bottom);
+			var xev = escapeVector(that.left, that.left + that.width,  other.left, other.left + other.width);
+			var yev = escapeVector(that.top,  that.top  + that.height, other.top,  other.top  + other.height);
 			// no collision
 			if (xev === false || yev === false) return false;
 			
@@ -365,19 +354,28 @@ var ENGINE = (function () {
 		that.draw = function (ctx) {
 			ctx.beginPath();
 			
-			ctx.rect(that.left, that.top, that.right-that.left, that.bottom-that.top);
+			ctx.rect(that.left, that.top, that.width, that.height);
 			
 			ctx.lineWidth = 1;
 			ctx.strokeStyle = 'red';
 			ctx.stroke();
 		};
 		
-		that.moveTo = function (position) {
-			that.left   = position.x - width/2;
-			that.right  = position.x + width/2;
-			that.top    = position.y - height/2;
-			that.bottom = position.y + height/2;
+		that.centerAt = function (position) {
+			that.left = position.x - that.width/2;
+			that.top  = position.y - that.height/2;
 		};
+	};
+	
+	exports.tweens = {};
+	
+	// http://easings.net/
+	exports.tweens.easeOutElastic = function (x, t, b, c, d) {
+		var s=1.70158;var p=0;var a=c;
+		if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
+		if (a < Math.abs(c)) { a=c; var s=p/4; }
+		else var s = p/(2*Math.PI) * Math.asin (c/a);
+		return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b;
 	};
 	
 	return exports;

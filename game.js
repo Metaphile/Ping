@@ -90,17 +90,16 @@ var GAME = (function () {
 				}
 				
 				Title.prototype = that; // states.base
-				
 				return new Title();
 			}());
 			
 			states.main = (function () {
 				function Main() {
 					var that = this;
-					that.score = 0;
-					that.multiplier = 1;
-					var multiplierResetInterval = 5;
-					var multiplierResetIntervalRemaining = 0;
+					var score = 0;
+					var scoreMultiplier = 1;
+					var scoreMultiplierLifespan = 5;
+					var scoreMultiplierLifespanRemaining = 0;
 					var spareBalls;
 					var TOTAL_BALLS = 3;
 					var WALL_THICKNESS = 50;
@@ -134,31 +133,32 @@ var GAME = (function () {
 					var pointses = new ENTITIES.EntityPool(function () {
 						return new ENTITIES.Points(ctx);
 					}, 10);
-					entities.push(pointses);
-					
-					var ball = new ENTITIES.Ball(ctx);
-					entities.push(ball);
 					
 					var cherryTokens = new ENTITIES.EntityPool(function () {
-						return new ENTITIES.Token(ctx, ENTITIES.images.cherries, 100, pointses, that);
+						return new ENTITIES.Token(ctx, ENTITIES.images.cherries, 100, that);
 					}, 10);
 					entities.push(cherryTokens);
 					
 					var bananaTokens = new ENTITIES.EntityPool(function () {
-						return new ENTITIES.Token(ctx, ENTITIES.images.bananas, 500, pointses, that);
+						return new ENTITIES.Token(ctx, ENTITIES.images.bananas, 500, that);
 					}, 10);
 					entities.push(bananaTokens);
 					
+					var ball = new ENTITIES.Ball(ctx);
+					entities.push(ball);
+					
+					entities.push(pointses);
+					
 					// get some tokens
-					var i = 3;
+					var i = 5;
 					while (i--) cherryTokens.getNext();
-					var i = 1;
+					var i = 3;
 					while (i--) bananaTokens.getNext();
 					
 					that.onEnter = function () {
-						that.score = 0;
-						multiplierResetIntervalRemaining = 0;
-						that.multiplier = 1;
+						score = 0;
+						scoreMultiplier = 1;
+						scoreMultiplierLifespanRemaining = 0;
 						spareBalls = TOTAL_BALLS;
 						// vertically center paddles
 						for (var i = 0, n = paddles.length; i < n; i++) paddles[i].position.y = ctx.canvas.height/2;
@@ -227,8 +227,8 @@ var GAME = (function () {
 						
 						// ball-void collisions
 						if (ball.position.x + ball.radius < 0 || ball.position.x - ball.radius > ctx.canvas.width) {
-							multiplierResetIntervalRemaining = 0;
-							that.multiplier = 1;
+							scoreMultiplierLifespanRemaining = 0;
+							scoreMultiplier = 1;
 							changeState(states.serving);
 						}
 						
@@ -237,20 +237,14 @@ var GAME = (function () {
 							var escapeVector = token.boundary.test(ball.boundary);
 							if (escapeVector) {
 								token.onCollision(ball, escapeVector);
-								ball.onCollision(token, escapeVector.inverse());
-								
-								that.multiplier += 1;
-								multiplierResetIntervalRemaining = multiplierResetInterval;
+								ball.onCollision(token, escapeVector.inverted());
 							}
 						});
 						bananaTokens.forEach(function (token) {
 							var escapeVector = token.boundary.test(ball.boundary);
 							if (escapeVector) {
 								token.onCollision(ball, escapeVector);
-								ball.onCollision(token, escapeVector.inverse());
-								
-								that.multiplier += 1;
-								multiplierResetIntervalRemaining = multiplierResetInterval;
+								ball.onCollision(token, escapeVector.inverted());
 							}
 						});
 					}
@@ -260,8 +254,8 @@ var GAME = (function () {
 						
 						checkCollisions();
 						
-						multiplierResetIntervalRemaining = Math.max(multiplierResetIntervalRemaining - deltaTime, 0);
-						if (multiplierResetIntervalRemaining === 0) that.multiplier = 1;
+						scoreMultiplierLifespanRemaining = Math.max(scoreMultiplierLifespanRemaining - deltaTime, 0);
+						if (scoreMultiplierLifespanRemaining === 0) scoreMultiplier = 1;
 					};
 					
 					function drawMultiplier() {
@@ -272,18 +266,23 @@ var GAME = (function () {
 						ctx.fillStyle = 'gray';
 						ctx.fillRect(LEFT, Math.round(WALL_THICKNESS/2 - HEIGHT/2 - exports.SPRITE_SCALE_FACTOR/2), WIDTH, HEIGHT);
 						ctx.fillStyle = 'white';
-						ctx.fillRect(LEFT, Math.round(WALL_THICKNESS/2 - HEIGHT/2 - exports.SPRITE_SCALE_FACTOR/2), multiplierResetIntervalRemaining/multiplierResetInterval * WIDTH, HEIGHT);
+						ctx.fillRect(LEFT, Math.round(WALL_THICKNESS/2 - HEIGHT/2 - exports.SPRITE_SCALE_FACTOR/2), scoreMultiplierLifespanRemaining/scoreMultiplierLifespan * WIDTH, HEIGHT);
 						
 						ctx.textAlign = 'center';
 						ctx.font = 'bold 18px monospace';
 						ctx.fillStyle = 'black';
-						ctx.fillText('×' + that.multiplier, LEFT + WIDTH/2, 31 - exports.SPRITE_SCALE_FACTOR/2);
+						ctx.fillText('×' + scoreMultiplier, LEFT + WIDTH/2, 31 - exports.SPRITE_SCALE_FACTOR/2);
 					}
 					
 					function drawScore() {
-						var scoreText = '$' + that.score.withCommas();
+						var scoreText = '$' + score.withCommas();
 						ctx.textAlign = 'center';
 						ctx.font = 'bold 30px monospace';
+						
+						ctx.strokeStyle = 'rgba(255, 255, 127, 0.5)';
+						ctx.lineWidth = 2;
+						ctx.strokeText(scoreText, ctx.canvas.width/2, 34 - exports.SPRITE_SCALE_FACTOR/2);
+						
 						ctx.fillStyle = 'white';
 						ctx.fillText(scoreText, ctx.canvas.width/2, 34 - exports.SPRITE_SCALE_FACTOR/2);
 					}
@@ -354,7 +353,6 @@ var GAME = (function () {
 							var that = this;
 							
 							var DURATION = 3, remaining;
-							var BALL_SPEED = 400;
 							
 							that.onEnter = function () {
 								if (spareBalls <= 0) return changeState(states.gameOver);
@@ -394,8 +392,8 @@ var GAME = (function () {
 											var angle = Math.randRange(-45, 45);
 											// randomly serve to the left or right
 											if (Math.random() > 0.5) { angle += 180; }
-											ball.velocity.x = Math.cos(angle * Math.PI/180) * BALL_SPEED;
-											ball.velocity.y = Math.sin(angle * Math.PI/180) * BALL_SPEED;
+											ball.velocity.x = Math.cos(angle * Math.PI/180) * ball.SPEED;
+											ball.velocity.y = Math.sin(angle * Math.PI/180) * ball.SPEED;
 											
 											changeState(states.playing);
 										}
@@ -414,7 +412,6 @@ var GAME = (function () {
 								}
 								
 								ServingNotPaused.prototype = that; // states.serving
-								
 								return new ServingNotPaused();
 							}());
 							
@@ -423,7 +420,6 @@ var GAME = (function () {
 						}
 						
 						Serving.prototype = that; // states.main
-						
 						return new Serving();
 					}());
 					
@@ -450,7 +446,6 @@ var GAME = (function () {
 								}
 								
 								PlayingNotPaused.prototype = that; // states.playing
-								
 								return new PlayingNotPaused();
 							}());
 							
@@ -458,8 +453,21 @@ var GAME = (function () {
 							states.playingPaused = new Paused(states.playingNotPaused);
 						}
 						
-						Playing.prototype = that; // states.main
+						that.onTokenCollected = function (token) {
+							var pointsAwarded = token.value * scoreMultiplier;
+							
+							score += pointsAwarded;
+							scoreMultiplier++;
+							scoreMultiplierLifespanRemaining = scoreMultiplierLifespan;
+							
+							var points = pointses.getNext();
+							points.initialize();
+							points.value = pointsAwarded;
+							points.position.x = token.position.x;
+							points.position.y = token.position.y;
+						};
 						
+						Playing.prototype = that; // states.main
 						return new Playing();
 					}());
 					
@@ -497,32 +505,40 @@ var GAME = (function () {
 						}
 						
 						GameOver.prototype = that; // states.main
-						
 						return new GameOver();
 					}());
 				}
 				
 				Main.prototype = that; // states.base
-				
 				return new Main();
 			}());
 		};
 		
-		// creates a public method that delegates to the current state
-		function delegate(method) {
-			// default implementation
-			states.base[method] = ENGINE.noop;
-			that[method] = function () { currentState[method].apply(currentState, arguments); };
+		// creates public properties that delegate to the current state
+		function delegateProperties(/* ... */) {
+			var names = Array.prototype.slice.call(arguments);
+			
+			names.forEach(function (name) {
+				Object.defineProperty(that, name, {
+					get: function () { return currentState[name] },
+					set: function (value) { currentState[name] = value; }
+				});
+			});
 		}
 		
-		delegate('onKeyDown');
-		delegate('onMouseMove');
-		delegate('onMouseDown');
-		delegate('onButtonDown');
-		delegate('onLeftStick');
-		delegate('onRightStick');
-		delegate('update');
-		delegate('draw');
+		// creates public methods that delegate to the current state
+		function delegateMethods(/* ... */) {
+			var names = Array.prototype.slice.call(arguments);
+			
+			names.forEach(function (name) {
+				// default implementation
+				states.base[name] = ENGINE.noop;
+				that[name] = function () { currentState[name].apply(currentState, arguments); };
+			});
+		}
+		
+		// todo: delegate properties
+		delegateMethods('onKeyDown', 'onMouseMove', 'onMouseDown', 'onButtonDown', 'onLeftStick', 'onRightStick', 'update', 'draw', 'onTokenCollected');
 		
 		// subscribe to input events
 		input.keyboard.keyDown.then(that.onKeyDown);

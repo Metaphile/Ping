@@ -55,10 +55,10 @@ var ENTITIES = (function () {
 			
 			ctx.beginPath();
 			ctx.rect(
-				that.boundary.left + ctx.lineWidth/2,
-				that.boundary.top + ctx.lineWidth/2,
-				that.boundary.right - that.boundary.left - ctx.lineWidth,
-				that.boundary.bottom - that.boundary.top - ctx.lineWidth
+				that.boundary.left   + ctx.lineWidth/2,
+				that.boundary.top    + ctx.lineWidth/2,
+				that.boundary.width  - ctx.lineWidth,
+				that.boundary.height - ctx.lineWidth
 			);
 			
 			ctx.stroke();
@@ -83,7 +83,7 @@ var ENTITIES = (function () {
 		
 		that.update = function (deltaTime) {
 			that.position.add(that.velocity.multipliedBy(deltaTime));
-			that.boundary.moveTo(that.position);
+			that.boundary.centerAt(that.position);
 		};
 		
 		that.draw = function () {
@@ -93,13 +93,13 @@ var ENTITIES = (function () {
 		
 		that.moveTo = function (y) {
 			that.position.y = y;
-			that.boundary.moveTo(that.position);
+			that.boundary.centerAt(that.position);
 		};
 		
 		that.onCollision = function (collidable, escapeVector) {
 			if (collidable instanceof exports.Wall) {
 				that.position.add(escapeVector);
-				that.boundary.moveTo(that.position);
+				that.boundary.centerAt(that.position);
 			}
 		};
 	};
@@ -109,6 +109,8 @@ var ENTITIES = (function () {
 		
 		// disabled ball can still collide with tokens :-(
 		that.enabled = true;
+		
+		that.SPEED = 400;
 		
 		that.position = new ENGINE.Vector2();
 		that.velocity = new ENGINE.Vector2();
@@ -131,7 +133,7 @@ var ENTITIES = (function () {
 			if (!that.enabled) return;
 			
 			that.position.add(that.velocity.multipliedBy(deltaTime));
-			that.boundary.moveTo(that.position);
+			that.boundary.centerAt(that.position);
 		};
 		
 		that.draw = function () {
@@ -148,7 +150,7 @@ var ENTITIES = (function () {
 				beep.replay();
 				
 				that.position.add(escapeVector);
-				that.boundary.moveTo(that.position);
+				that.boundary.centerAt(that.position);
 				
 				// this is a bit cheating, but since we know that the collidable's boundary is an AABB, then the normalized escape vector is also the surface normal
 				var surfaceNormal = escapeVector.normalized();
@@ -159,7 +161,7 @@ var ENTITIES = (function () {
 				boop.replay();
 				
 				that.position.add(escapeVector);
-				that.boundary.moveTo(that.position);
+				that.boundary.centerAt(that.position);
 				
 				var surfaceNormal = escapeVector.normalized();
 				
@@ -170,14 +172,11 @@ var ENTITIES = (function () {
 					// -1 ... 1
 					t /= (collidable.height + that.radius*2) / 2;
 					var accuracy = 1 - Math.abs(t);
-					// add a bit of randomness
-					t += Math.randRange(-0.1, 0.1);
 					
 					var bounceAngle = t * 70;
 					
-					var ballSpeed = that.velocity.length();
-					that.velocity.x = Math.cos(bounceAngle * Math.PI/180) * ballSpeed * surfaceNormal.x;
-					that.velocity.y = Math.sin(bounceAngle * Math.PI/180) * ballSpeed;
+					that.velocity.x = Math.cos(bounceAngle * Math.PI/180) * that.SPEED * surfaceNormal.x;
+					that.velocity.y = Math.sin(bounceAngle * Math.PI/180) * that.SPEED;
 				} else {
 					// bounce normally
 					boop.replay();
@@ -195,85 +194,229 @@ var ENTITIES = (function () {
 		
 		that.value = 0;
 		
-		var FADE_DURATION = 1.6, fadeDurationElapsed;
+		var FADE_DURATION = 1.7, fadeDurationElapsed;
+		// for pop up animation
+		var verticalOffset;
 		
 		that.initialize = function () {
 			fadeDurationElapsed = 0;
+			verticalOffset = 0;
 		};
 		
 		that.update = function (deltaTime) {
 			if (fadeDurationElapsed < FADE_DURATION) {
 				fadeDurationElapsed += deltaTime;
 				
-				// float up
-				that.position.y -= 20 * deltaTime;
+				// pop up
+				verticalOffset = ENGINE.tweens.easeOutElastic(null, fadeDurationElapsed, 0, -20, 1);
 			}
 		};
 		
 		that.draw = function () {
 			ctx.textAlign = 'center';
-			ctx.font = 'bold 16px monospace';
+			ctx.font = 'bold 18px monospace';
 			
 			var text = '$' + that.value.withCommas();
-			var opacity = 1 - fadeDurationElapsed/FADE_DURATION;
+			var opacity = 1 - Math.pow(fadeDurationElapsed/FADE_DURATION, 2);
+			
+			// black outline
+			ctx.strokeStyle = 'rgba(0, 0, 0, ' + opacity + ')';
+			ctx.lineWidth = 4;
+			ctx.strokeText(text, that.position.x, that.position.y + verticalOffset);
+			
+			// yellow glow
+			ctx.strokeStyle = 'rgba(255, 255, 127, ' + opacity + ')';
+			ctx.lineWidth = 2;
+			ctx.strokeText(text, that.position.x, that.position.y + verticalOffset);
+			
 			ctx.fillStyle = 'rgba(255, 255, 255, ' + opacity + ')';
-			ctx.fillText(text, that.position.x, that.position.y);
+			ctx.fillText(text, that.position.x, that.position.y + verticalOffset);
 		};
 		
 		that.initialize();
 	};
 	
-	exports.Token = function (ctx, sprite, pointValue, pointses, game) {
+	exports.Token = function (ctx, sprite, value, game) {
 		var that = this;
+		var states = {}, currentState;
 		
-		that.position = new ENGINE.Vector2();
+		function changeState(newState) {
+			currentState = newState;
+			currentState.onEnter();
+		}
 		
-		var aspectRatio = sprite.width/sprite.height;
-		that.width = sprite.width * GAME.SPRITE_SCALE_FACTOR;
-		that.height = that.width/aspectRatio;
-		
-		that.boundary = new ENGINE.AABB(
-			that.position.x - that.width/2,
-			that.position.y - that.height/2,
-			that.width,
-			that.height
-		);
-		
-		var chaChing = new Audio('sounds/cha-ching.ogg');
-		chaChing.volume = 0.1;
-		
-		var t = Math.randRange(0, Math.PI*2);
-		
-		that.update = function (deltaTime) {
-			// bob slightly
-			t += 5 * deltaTime;
-			while (t > Math.PI*2) t -= Math.PI*2;
-			that.position.y += Math.sin(t) * 0.2;
-			that.boundary.moveTo(that.position);
+		states.base = {
+			onEnter: function () { changeState(states.main); }
 		};
 		
-		that.draw = function () {
-			ctx.drawImage(sprite, that.position.x - that.width/2, that.position.y - that.height/2, that.width, that.height);
-		};
+		// creates public properties that delegate to the current state
+		function delegateProperties(/* ... */) {
+			var names = Array.prototype.slice.call(arguments);
+			
+			names.forEach(function (name) {
+				Object.defineProperty(that, name, {
+					get: function () { return currentState[name] },
+					set: function (value) { currentState[name] = value; }
+				});
+			});
+		}
 		
-		that.onCollision = function (collidable) {
-			if (collidable instanceof exports.Ball) {
-				chaChing.replay();
+		// creates public methods that delegate to the current state
+		function delegateMethods(/* ... */) {
+			var names = Array.prototype.slice.call(arguments);
+			
+			names.forEach(function (name) {
+				// default implementation
+				states.base[name] = ENGINE.noop;
+				that[name] = function () { currentState[name].apply(currentState, arguments); };
+			});
+		}
+		
+		delegateProperties('position', 'width', 'height', 'boundary');
+		delegateMethods('update', 'draw', 'onCollision');
+		
+		states.main = (function () {
+			function Main() {
+				var that = this;
+				that.value = value;
 				
-				var points = pointses.getNext();
-				points.initialize();
-				points.value = pointValue * game.multiplier;
-				points.alignment = 'center';
-				points.position.x = that.position.x;
-				points.position.y = that.position.y;
+				that.onEnter = function () {
+					changeState(states.spawning);
+				};
 				
-				game.score += pointValue * game.multiplier;
+				that.position = new ENGINE.Vector2();
 				
-				// temp!! move to random location
-				that.position.x = Math.randRange(100, ctx.canvas.width-100);
-				that.position.y = Math.randRange(100, ctx.canvas.height-100);
+				var aspectRatio = sprite.width/sprite.height;
+				that.width = sprite.width * GAME.SPRITE_SCALE_FACTOR;
+				that.height = that.width/aspectRatio;
+				
+				that.boundary = new ENGINE.AABB(
+					that.position.x - that.width/2,
+					that.position.y - that.height/2,
+					that.width,
+					that.height
+				);
+				
+				states.spawning = (function () {
+					function Spawning() {
+						var that = this;
+						var SPAWN_DURATION = 1, spawnDurationElapsed;
+						
+						that.onEnter = function () {
+							spawnDurationElapsed = 0;
+							
+							// temp!! move to random location
+							that.position.x = Math.randRange(100, ctx.canvas.width-100);
+							that.position.y = Math.randRange(100, ctx.canvas.height-100);
+						};
+						
+						that.update = function (deltaTime) {
+							that.__proto__.update(deltaTime);
+							
+							spawnDurationElapsed += deltaTime;
+							if (spawnDurationElapsed >= SPAWN_DURATION) changeState(states.normal);
+						};
+						
+						function f(x) {
+							return x*x;
+						}
+						
+						that.draw = function () {
+							var ratio = spawnDurationElapsed/SPAWN_DURATION;
+							
+							var width = that.width * f(ratio);
+							var height = that.height * f(ratio);
+							
+							ctx.save();
+							ctx.globalAlpha = f(ratio) * 0.25;
+							ctx.drawImage(sprite, that.position.x - width/2, that.position.y - height/2, width, height);
+							ctx.restore();
+						};
+					}
+					
+					Spawning.prototype = that; // states.main
+					return new Spawning();
+				}());
+				
+				states.normal = (function () {
+					function Normal() {
+						var that = this;
+						
+						that.onEnter = ENGINE.noop;
+						
+						var chaChing = new Audio('sounds/cha-ching.ogg');
+						chaChing.volume = 0.1;
+						
+						that.draw = function () {
+							ctx.drawImage(sprite, that.position.x - that.width/2, that.position.y - that.height/2, that.width, that.height);
+						};
+						
+						that.onCollision = function (collidable, escapeVector) {
+							if (collidable instanceof exports.Ball) {
+								chaChing.replay();
+								game.onTokenCollected(that);
+								changeState(states.dying);
+							}
+						};
+					}
+					
+					Normal.prototype = that; // states.main
+					return new Normal();
+				}());
+				
+				states.dying = (function () {
+					function Dying() {
+						var that = this;
+						var DEATH_DURATION = 1/3, deathDurationElapsed;
+						
+						that.onEnter = function () {
+							deathDurationElapsed = 0;
+						};
+						
+						that.update = function (deltaTime) {
+							that.__proto__.update(deltaTime);
+							
+							deathDurationElapsed += deltaTime;
+							if (deathDurationElapsed >= DEATH_DURATION) changeState(states.spawning);
+						};
+						
+						function f(x) {
+							return x*x;
+						}
+						
+						that.draw = function () {
+							var ratio = 1 - deathDurationElapsed/DEATH_DURATION;
+							
+							var width = that.width + (1 - f(ratio) || Number.MIN_VALUE) * 1000;
+							var height = that.height * f(ratio);
+							
+							ctx.save();
+							ctx.globalAlpha = f(ratio) * 0.5;
+							ctx.drawImage(sprite, that.position.x - width/2, that.position.y - height/2, width, height);
+							ctx.restore();
+						};
+					}
+					
+					Dying.prototype = that; // states.main
+					return new Dying();
+				}());
+				
+				var t = Math.randRange(0, Math.PI*2);
+				
+				that.update = function (deltaTime) {
+					// bob slightly
+					t += 3 * deltaTime;
+					while (t > Math.PI*2) t -= Math.PI*2;
+					that.position.y += Math.sin(t) * 0.2;
+					that.boundary.centerAt(that.position);
+				};
 			}
-		};
+			
+			Main.prototype = states.base;
+			return new Main();
+		}());
+		
+		changeState(states.base);
 	};
 	
 	exports.EntityPool = function (createEntity, count) {
