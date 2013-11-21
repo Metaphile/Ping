@@ -3,14 +3,6 @@ var ENGINE = (function () {
 	
 	var exports = {};
 	
-	// true prototypal inheritance
-	// http://javascript.crockford.com/prototypal.html
-	Object.create = function (o) {
-		function F() {}
-		F.prototype = o;
-		return new F();
-	};
-	
 	// clear a possibly transformed canvas
 	// http://stackoverflow.com/a/9722502/40356
 	CanvasRenderingContext2D.prototype.clear = function () {
