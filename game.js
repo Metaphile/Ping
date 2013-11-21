@@ -98,7 +98,7 @@ var GAME = (function () {
 					var that = this;
 					var score = 0;
 					var scoreMultiplier = 1;
-					var scoreMultiplierLifespan = 5;
+					var scoreMultiplierLifespan = 3.5;
 					var scoreMultiplierLifespanRemaining = 0;
 					var spareBalls;
 					var TOTAL_BALLS = 3;
@@ -147,8 +147,8 @@ var GAME = (function () {
 					var initialTokenSpawner = new function () {
 						var that = this;
 						
-						var NUM_CHERRY_TOKENS = 12, numCherryTokensRemaining;
-						var NUM_BANANA_TOKENS = 4, numBananaTokensRemaining;
+						var NUM_CHERRY_TOKENS = 9, numCherryTokensRemaining;
+						var NUM_BANANA_TOKENS = 3, numBananaTokensRemaining;
 						var SPAWN_INTERVAL = 1/8, spawnIntervalRemaining;
 						
 						that.initialize = function () {
@@ -300,7 +300,7 @@ var GAME = (function () {
 						ctx.fillStyle = 'gray';
 						ctx.fillRect(LEFT, Math.round(WALL_THICKNESS/2 - HEIGHT/2 - exports.SPRITE_SCALE_FACTOR/2), WIDTH, HEIGHT);
 						ctx.fillStyle = 'white';
-						ctx.fillRect(LEFT, Math.round(WALL_THICKNESS/2 - HEIGHT/2 - exports.SPRITE_SCALE_FACTOR/2), scoreMultiplierLifespanRemaining/scoreMultiplierLifespan * WIDTH, HEIGHT);
+						ctx.fillRect(LEFT, Math.round(WALL_THICKNESS/2 - HEIGHT/2 - exports.SPRITE_SCALE_FACTOR/2), Math.pow(scoreMultiplierLifespanRemaining/scoreMultiplierLifespan, 3) * WIDTH, HEIGHT);
 						
 						ctx.textAlign = 'center';
 						ctx.font = 'bold 18px monospace';
