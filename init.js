@@ -25,7 +25,7 @@ window.onload = function () {
 			requestAnimationFrame(step);
 			
 			input.gamepad.poll();
-			game.update(deltaTime);
+			game.update(deltaTime * CONFIG.timeScale);
 			
 			ctx.clear();
 			game.draw();

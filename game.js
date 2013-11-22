@@ -97,9 +97,8 @@ var GAME = (function () {
 				function Main() {
 					var that = this;
 					var score = 0;
-					var scoreMultiplier = 1;
-					var scoreMultiplierLifespan = 3.5;
-					var scoreMultiplierLifespanRemaining = 0;
+					var multiplier = 1;
+					var multiplierTimeoutRemaining = 0;
 					var spareBalls;
 					var TOTAL_BALLS = 3;
 					var WALL_THICKNESS = 50;
@@ -132,28 +131,28 @@ var GAME = (function () {
 					
 					var pointses = new ENTITIES.EntityPool(function () {
 						return new ENTITIES.Points(ctx);
-					}, 10);
+					}, CONFIG.numCherryTokens + CONFIG.numBananaTokens + 10);
 					
 					var cherryTokens = new ENTITIES.EntityPool(function () {
 						return new ENTITIES.Token(ctx, ENTITIES.images.cherries, 100, that);
-					}, 20);
+					}, CONFIG.numCherryTokens);
 					entities.push(cherryTokens);
 					
 					var bananaTokens = new ENTITIES.EntityPool(function () {
 						return new ENTITIES.Token(ctx, ENTITIES.images.bananas, 500, that);
-					}, 20);
+					}, CONFIG.numBananaTokens);
 					entities.push(bananaTokens);
 					
 					var initialTokenSpawner = new function () {
 						var that = this;
 						
-						var NUM_CHERRY_TOKENS = 9, numCherryTokensRemaining;
-						var NUM_BANANA_TOKENS = 3, numBananaTokensRemaining;
+						var numCherryTokensRemaining;
+						var numBananaTokensRemaining;
 						var SPAWN_INTERVAL = 1/8, spawnIntervalRemaining;
 						
 						that.initialize = function () {
-							numCherryTokensRemaining = NUM_CHERRY_TOKENS;
-							numBananaTokensRemaining = NUM_BANANA_TOKENS;
+							numCherryTokensRemaining = CONFIG.numCherryTokens;
+							numBananaTokensRemaining = CONFIG.numBananaTokens;
 							spawnIntervalRemaining = SPAWN_INTERVAL;
 						};
 						
@@ -195,8 +194,8 @@ var GAME = (function () {
 					
 					that.onEnter = function () {
 						score = 0;
-						scoreMultiplier = 1;
-						scoreMultiplierLifespanRemaining = 0;
+						multiplier = 1;
+						multiplierTimeoutRemaining = 0;
 						spareBalls = TOTAL_BALLS;
 						// vertically center paddles
 						for (var i = 0, n = paddles.length; i < n; i++) paddles[i].position.y = ctx.canvas.height/2;
@@ -260,9 +259,9 @@ var GAME = (function () {
 						});
 						
 						// ball-void collisions
-						if (ball.position.x + ball.radius < 0 || ball.position.x - ball.radius > ctx.canvas.width) {
-							scoreMultiplierLifespanRemaining = 0;
-							scoreMultiplier = 1;
+						if (ball.position.x + CONFIG.ballRadius < 0 || ball.position.x - CONFIG.ballRadius > ctx.canvas.width) {
+							multiplierTimeoutRemaining = 0;
+							multiplier = 1;
 							changeState(states.serving);
 						}
 						
@@ -288,8 +287,8 @@ var GAME = (function () {
 						
 						checkCollisions();
 						
-						scoreMultiplierLifespanRemaining = Math.max(scoreMultiplierLifespanRemaining - deltaTime, 0);
-						if (scoreMultiplierLifespanRemaining === 0) scoreMultiplier = 1;
+						multiplierTimeoutRemaining = Math.max(multiplierTimeoutRemaining - deltaTime, 0);
+						if (multiplierTimeoutRemaining === 0) multiplier = 1;
 					};
 					
 					function drawMultiplier() {
@@ -300,12 +299,12 @@ var GAME = (function () {
 						ctx.fillStyle = 'gray';
 						ctx.fillRect(LEFT, Math.round(WALL_THICKNESS/2 - HEIGHT/2 - exports.SPRITE_SCALE_FACTOR/2), WIDTH, HEIGHT);
 						ctx.fillStyle = 'white';
-						ctx.fillRect(LEFT, Math.round(WALL_THICKNESS/2 - HEIGHT/2 - exports.SPRITE_SCALE_FACTOR/2), Math.pow(scoreMultiplierLifespanRemaining/scoreMultiplierLifespan, 3) * WIDTH, HEIGHT);
+						ctx.fillRect(LEFT, Math.round(WALL_THICKNESS/2 - HEIGHT/2 - exports.SPRITE_SCALE_FACTOR/2), Math.pow(multiplierTimeoutRemaining/CONFIG.multiplierTimeout, 3) * WIDTH, HEIGHT);
 						
 						ctx.textAlign = 'center';
 						ctx.font = 'bold 18px monospace';
 						ctx.fillStyle = 'black';
-						ctx.fillText('×' + scoreMultiplier, LEFT + WIDTH/2, 31 - exports.SPRITE_SCALE_FACTOR/2);
+						ctx.fillText('×' + multiplier, LEFT + WIDTH/2, 31 - exports.SPRITE_SCALE_FACTOR/2);
 					}
 					
 					function drawScore() {
@@ -426,8 +425,8 @@ var GAME = (function () {
 											var angle = Math.randRange(-45, 45);
 											// randomly serve to the left or right
 											if (Math.random() > 0.5) { angle += 180; }
-											ball.velocity.x = Math.cos(angle * Math.PI/180) * ball.SPEED;
-											ball.velocity.y = Math.sin(angle * Math.PI/180) * ball.SPEED;
+											ball.velocity.x = Math.cos(angle * Math.PI/180) * CONFIG.ballSpeed;
+											ball.velocity.y = Math.sin(angle * Math.PI/180) * CONFIG.ballSpeed;
 											
 											changeState(states.playing);
 										}
@@ -488,11 +487,11 @@ var GAME = (function () {
 						}
 						
 						that.onTokenCollected = function (token) {
-							var pointsAwarded = token.value * scoreMultiplier;
+							var pointsAwarded = token.value * multiplier;
 							
 							score += pointsAwarded;
-							scoreMultiplier++;
-							scoreMultiplierLifespanRemaining = scoreMultiplierLifespan;
+							multiplier++;
+							multiplierTimeoutRemaining = CONFIG.multiplierTimeout;
 							
 							var points = pointses.getNext();
 							points.initialize();

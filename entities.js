@@ -72,13 +72,12 @@ var ENTITIES = (function () {
 		that.velocity = new ENGINE.Vector2();
 		
 		that.width = 8;
-		that.height = 80;
 		
 		that.boundary = new ENGINE.AABB(
 			that.position.x - that.width/2,
-			that.position.y - that.height/2,
+			that.position.y - CONFIG.paddleHeight/2,
 			that.width,
-			that.height
+			CONFIG.paddleHeight
 		);
 		
 		that.update = function (deltaTime) {
@@ -88,7 +87,7 @@ var ENTITIES = (function () {
 		
 		that.draw = function () {
 			ctx.fillStyle = 'white';
-			ctx.fillRect(that.position.x - that.width/2, that.position.y - that.height/2, that.width, that.height);
+			ctx.fillRect(that.position.x - that.width/2, that.position.y - CONFIG.paddleHeight/2, that.width, CONFIG.paddleHeight);
 		};
 		
 		that.moveTo = function (y) {
@@ -110,17 +109,14 @@ var ENTITIES = (function () {
 		// disabled ball can still collide with tokens :-(
 		that.enabled = true;
 		
-		that.SPEED = 400;
-		
 		that.position = new ENGINE.Vector2();
 		that.velocity = new ENGINE.Vector2();
-		that.radius = 12;
 		
 		that.boundary = new ENGINE.AABB(
-			that.position.x - that.radius,
-			that.position.y - that.radius,
-			that.radius*2,
-			that.radius*2
+			that.position.x - CONFIG.ballRadius,
+			that.position.y - CONFIG.ballRadius,
+			CONFIG.ballRadius*2,
+			CONFIG.ballRadius*2
 		);
 		
 		var beep = new Audio('sounds/boop.ogg');
@@ -140,7 +136,7 @@ var ENTITIES = (function () {
 			if (!that.enabled) return;
 			
 			ctx.beginPath();
-			ctx.arc(that.position.x, that.position.y, that.radius, 0, Math.PI * 2);
+			ctx.arc(that.position.x, that.position.y, CONFIG.ballRadius, 0, Math.PI * 2);
 			ctx.fillStyle = 'white';
 			ctx.fill();
 		};
@@ -170,13 +166,13 @@ var ENTITIES = (function () {
 					
 					var t = that.position.y - collidable.position.y;
 					// -1 ... 1
-					t /= (collidable.height + that.radius*2) / 2;
+					t /= (CONFIG.paddleHeight + CONFIG.ballRadius*2) / 2;
 					var accuracy = 1 - Math.abs(t);
 					
 					var bounceAngle = t * 70;
 					
-					that.velocity.x = Math.cos(bounceAngle * Math.PI/180) * that.SPEED * surfaceNormal.x;
-					that.velocity.y = Math.sin(bounceAngle * Math.PI/180) * that.SPEED;
+					that.velocity.x = Math.cos(bounceAngle * Math.PI/180) * CONFIG.ballSpeed * surfaceNormal.x;
+					that.velocity.y = Math.sin(bounceAngle * Math.PI/180) * CONFIG.ballSpeed;
 				} else {
 					// bounce normally
 					boop.replay();
