@@ -131,28 +131,28 @@ var GAME = (function () {
 					
 					var pointses = new ENTITIES.EntityPool(function () {
 						return new ENTITIES.Points(ctx);
-					}, 10);
+					}, CONFIG.numCherryTokens + CONFIG.numBananaTokens + 10);
 					
 					var cherryTokens = new ENTITIES.EntityPool(function () {
 						return new ENTITIES.Token(ctx, ENTITIES.images.cherries, 100, that);
-					}, 20);
+					}, CONFIG.numCherryTokens);
 					entities.push(cherryTokens);
 					
 					var bananaTokens = new ENTITIES.EntityPool(function () {
 						return new ENTITIES.Token(ctx, ENTITIES.images.bananas, 500, that);
-					}, 20);
+					}, CONFIG.numBananaTokens);
 					entities.push(bananaTokens);
 					
 					var initialTokenSpawner = new function () {
 						var that = this;
 						
-						var NUM_CHERRY_TOKENS = 9, numCherryTokensRemaining;
-						var NUM_BANANA_TOKENS = 3, numBananaTokensRemaining;
+						var numCherryTokensRemaining;
+						var numBananaTokensRemaining;
 						var SPAWN_INTERVAL = 1/8, spawnIntervalRemaining;
 						
 						that.initialize = function () {
-							numCherryTokensRemaining = NUM_CHERRY_TOKENS;
-							numBananaTokensRemaining = NUM_BANANA_TOKENS;
+							numCherryTokensRemaining = CONFIG.numCherryTokens;
+							numBananaTokensRemaining = CONFIG.numBananaTokens;
 							spawnIntervalRemaining = SPAWN_INTERVAL;
 						};
 						
