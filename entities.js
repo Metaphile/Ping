@@ -114,13 +114,12 @@ var ENTITIES = (function () {
 		
 		that.position = new ENGINE.Vector2();
 		that.velocity = new ENGINE.Vector2();
-		that.radius = 12;
 		
 		that.boundary = new ENGINE.AABB(
-			that.position.x - that.radius,
-			that.position.y - that.radius,
-			that.radius*2,
-			that.radius*2
+			that.position.x - CONFIG.ballRadius,
+			that.position.y - CONFIG.ballRadius,
+			CONFIG.ballRadius*2,
+			CONFIG.ballRadius*2
 		);
 		
 		var beep = new Audio('sounds/boop.ogg');
@@ -140,7 +139,7 @@ var ENTITIES = (function () {
 			if (!that.enabled) return;
 			
 			ctx.beginPath();
-			ctx.arc(that.position.x, that.position.y, that.radius, 0, Math.PI * 2);
+			ctx.arc(that.position.x, that.position.y, CONFIG.ballRadius, 0, Math.PI * 2);
 			ctx.fillStyle = 'white';
 			ctx.fill();
 		};
@@ -170,7 +169,7 @@ var ENTITIES = (function () {
 					
 					var t = that.position.y - collidable.position.y;
 					// -1 ... 1
-					t /= (collidable.height + that.radius*2) / 2;
+					t /= (collidable.height + CONFIG.ballRadius*2) / 2;
 					var accuracy = 1 - Math.abs(t);
 					
 					var bounceAngle = t * 70;

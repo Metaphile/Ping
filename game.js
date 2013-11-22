@@ -260,7 +260,7 @@ var GAME = (function () {
 						});
 						
 						// ball-void collisions
-						if (ball.position.x + ball.radius < 0 || ball.position.x - ball.radius > ctx.canvas.width) {
+						if (ball.position.x + CONFIG.ballRadius < 0 || ball.position.x - CONFIG.ballRadius > ctx.canvas.width) {
 							scoreMultiplierLifespanRemaining = 0;
 							scoreMultiplier = 1;
 							changeState(states.serving);
