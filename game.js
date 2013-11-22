@@ -100,7 +100,6 @@ var GAME = (function () {
 					var multiplier = 1;
 					var multiplierTimeoutRemaining = 0;
 					var spareBalls;
-					var TOTAL_BALLS = 3;
 					var WALL_THICKNESS = 50;
 					
 					var entities = [];
@@ -196,7 +195,7 @@ var GAME = (function () {
 						score = 0;
 						multiplier = 1;
 						multiplierTimeoutRemaining = 0;
-						spareBalls = TOTAL_BALLS;
+						spareBalls = CONFIG.numBalls;
 						// vertically center paddles
 						for (var i = 0, n = paddles.length; i < n; i++) paddles[i].position.y = ctx.canvas.height/2;
 						ball.enabled = true;
@@ -323,9 +322,9 @@ var GAME = (function () {
 					function drawSpareBalls() {
 						var SYMBOL_RADIUS = 7;
 						var SPACING = 6;
-						var LEFT = ctx.canvas.width - (TOTAL_BALLS * (SYMBOL_RADIUS*2 + SPACING)) + SYMBOL_RADIUS - 100;
+						var LEFT = ctx.canvas.width - (CONFIG.numBalls * (SYMBOL_RADIUS*2 + SPACING)) + SYMBOL_RADIUS - 100;
 						
-						for (var i = 0; i < TOTAL_BALLS; i++) {
+						for (var i = 0; i < CONFIG.numBalls; i++) {
 							ctx.beginPath();
 							ctx.arc(LEFT + i * (SYMBOL_RADIUS*2 + SPACING), WALL_THICKNESS/2 - exports.SPRITE_SCALE_FACTOR/2, SYMBOL_RADIUS, 0, Math.PI * 2);
 							ctx.fillStyle = (i < spareBalls ? 'white' : 'gray');

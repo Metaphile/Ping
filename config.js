@@ -4,6 +4,7 @@ CONFIG = (function () {
 	return {
 		timeScale: 1,
 		paddleHeight: 80,
+		numBalls: 3,
 		ballRadius: 12,
 		ballSpeed: 400,
 		multiplierTimeout: 3.5,
