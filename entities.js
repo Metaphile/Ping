@@ -387,7 +387,7 @@ var ENTITIES = (function () {
 							var height = that.height * f(ratio);
 							
 							ctx.save();
-							ctx.globalAlpha = f(ratio) * 0.5;
+							ctx.globalAlpha = f(ratio) * 0.4;
 							ctx.drawImage(sprite, that.position.x - width/2, that.position.y - height/2, width, height);
 							ctx.restore();
 						};

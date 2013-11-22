@@ -211,8 +211,8 @@ var GAME = (function () {
 						changeState(states.serving);
 					};
 					
-					that.onMouseMove = function (position) {
-						for (var i = 0, n = paddles.length; i < n; i++) paddles[i].position.y = position.y;
+					that.onMouseMove = function (event) {
+						for (var i = 0, n = paddles.length; i < n; i++) paddles[i].position.y += event.movementY;
 					};
 					
 					that.onLeftStick = ENGINE.streamify();

@@ -10,7 +10,7 @@ window.onload = function () {
 		
 		var input = {};
 		input.keyboard = new ENGINE.Keyboard(document);
-		input.mouse = new ENGINE.Mouse(ctx.canvas);
+		input.mouse = new ENGINE.Mouse(document);
 		input.gamepad = new ENGINE.Gamepad(0);
 		
 		var game = new GAME.Game(input, ctx);
