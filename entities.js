@@ -72,13 +72,12 @@ var ENTITIES = (function () {
 		that.velocity = new ENGINE.Vector2();
 		
 		that.width = 8;
-		that.height = 80;
 		
 		that.boundary = new ENGINE.AABB(
 			that.position.x - that.width/2,
-			that.position.y - that.height/2,
+			that.position.y - CONFIG.paddleHeight/2,
 			that.width,
-			that.height
+			CONFIG.paddleHeight
 		);
 		
 		that.update = function (deltaTime) {
@@ -88,7 +87,7 @@ var ENTITIES = (function () {
 		
 		that.draw = function () {
 			ctx.fillStyle = 'white';
-			ctx.fillRect(that.position.x - that.width/2, that.position.y - that.height/2, that.width, that.height);
+			ctx.fillRect(that.position.x - that.width/2, that.position.y - CONFIG.paddleHeight/2, that.width, CONFIG.paddleHeight);
 		};
 		
 		that.moveTo = function (y) {
@@ -169,7 +168,7 @@ var ENTITIES = (function () {
 					
 					var t = that.position.y - collidable.position.y;
 					// -1 ... 1
-					t /= (collidable.height + CONFIG.ballRadius*2) / 2;
+					t /= (CONFIG.paddleHeight + CONFIG.ballRadius*2) / 2;
 					var accuracy = 1 - Math.abs(t);
 					
 					var bounceAngle = t * 70;

@@ -3,7 +3,7 @@ CONFIG = (function () {
 	
 	return {
 		timeScale: 1,
-		paddleWidth: 80,
+		paddleHeight: 80,
 		ballRadius: 12,
 		ballSpeed: 400,
 		multiplierTimeout: 3.4,
