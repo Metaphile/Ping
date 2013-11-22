@@ -190,7 +190,6 @@ var GAME = (function () {
 						return new ENTITIES.Ball(ctx);
 					}, 10);
 					entities.push(balls);
-					var ball;
 					
 					entities.push(pointses);
 					
@@ -204,8 +203,6 @@ var GAME = (function () {
 						
 						var i = entities.length;
 						while (i--) entities[i].initialize();
-						
-						ball = balls.getNext();
 						
 						initialTokenSpawner.initialize();
 						
@@ -246,41 +243,47 @@ var GAME = (function () {
 							}
 						}
 						
-						// ball-wall collisions
-						walls.forEach(function (wall) {
-							var escapeVector = ball.boundary.test(wall.boundary);
-							if (escapeVector) ball.onCollision(wall, escapeVector);
-						});
-						
-						// ball-paddle collisions
-						paddles.forEach(function (paddle) {
-							var escapeVector = ball.boundary.test(paddle.boundary);
-							if (escapeVector) {
-								ball.onCollision(paddle, escapeVector);
+						balls.forEach(function (ball) {
+							walls.forEach(function (wall) {
+								var escapeVector = ball.boundary.test(wall.boundary);
+								if (escapeVector) {
+									ball.onCollision(wall, escapeVector);
+								}
+							});
+							
+							paddles.forEach(function (paddle) {
+								var escapeVector = ball.boundary.test(paddle.boundary);
+								if (escapeVector) {
+									ball.onCollision(paddle, escapeVector);
+								}
+							});
+							
+							// ball-void collisions
+							if (ball.position.x - CONFIG.ballRadius < 0 || ball.position.x - CONFIG.ballRadius > ctx.canvas.width) {
+								balls.putAway(ball);
+								
+								// if there are no balls left on the court, end the round
+								var ballFound = false;
+								balls.forEach(function () { ballFound = true; });
+								if (!ballFound) {
+									multiplierTimeoutRemaining = 0;
+									multiplier = 1;
+									changeState(states.serving);
+								}
 							}
-						});
-						
-						// ball-void collisions
-						if (ball.position.x + CONFIG.ballRadius < 0 || ball.position.x - CONFIG.ballRadius > ctx.canvas.width) {
-							multiplierTimeoutRemaining = 0;
-							multiplier = 1;
-							changeState(states.serving);
-						}
-						
-						// ball-token collisions
-						cherryTokens.forEach(function (token) {
-							var escapeVector = token.boundary.test(ball.boundary);
-							if (escapeVector) {
-								token.onCollision(ball, escapeVector);
-								ball.onCollision(token, escapeVector.inverted());
-							}
-						});
-						bananaTokens.forEach(function (token) {
-							var escapeVector = token.boundary.test(ball.boundary);
-							if (escapeVector) {
-								token.onCollision(ball, escapeVector);
-								ball.onCollision(token, escapeVector.inverted());
-							}
+							
+							cherryTokens.forEach(function (token) {
+								var escapeVector = token.boundary.test(ball.boundary);
+								if (escapeVector) {
+									token.onCollision(ball, escapeVector);
+								}
+							});
+							bananaTokens.forEach(function (token) {
+								var escapeVector = token.boundary.test(ball.boundary);
+								if (escapeVector) {
+									token.onCollision(ball, escapeVector);
+								}
+							});
 						});
 					}
 					
@@ -394,8 +397,8 @@ var GAME = (function () {
 								
 								remaining = DURATION;
 								
+								var ball = balls.getNext();
 								spareBalls--;
-								
 								ball.position.x = ctx.canvas.width/2;
 								ball.position.y = ctx.canvas.height/2;
 								ball.velocity.x = 0;
@@ -424,11 +427,13 @@ var GAME = (function () {
 										
 										remaining -= deltaTime;
 										if (remaining <= 0) {
-											var angle = Math.randRange(-45, 45);
-											// randomly serve to the left or right
-											if (Math.random() > 0.5) { angle += 180; }
-											ball.velocity.x = Math.cos(angle * Math.PI/180) * CONFIG.ballSpeed;
-											ball.velocity.y = Math.sin(angle * Math.PI/180) * CONFIG.ballSpeed;
+											balls.forEach(function (ball) {
+												var angle = Math.randRange(-45, 45);
+												// randomly serve to the left or right
+												if (Math.random() >= 0.5) { angle += 180; }
+												ball.velocity.x = Math.cos(angle * Math.PI/180) * CONFIG.ballSpeed;
+												ball.velocity.y = Math.sin(angle * Math.PI/180) * CONFIG.ballSpeed;
+											});
 											
 											changeState(states.playing);
 										}
@@ -510,9 +515,7 @@ var GAME = (function () {
 							var that = this;
 							
 							that.onEnter = function () {
-								ball.enabled = false;
-								ball.position.x = ctx.canvas.width/2;
-								ball.position.y = ctx.canvas.height/2;
+								balls.initialize();
 							};
 							
 							that.draw = function () {
@@ -530,7 +533,7 @@ var GAME = (function () {
 							
 							// press *almost* any key to continue
 							that.onKeyDown.then(function (key) { if (ENGINE.Keyboard.modifiers.indexOf(key) === -1) return key; })
-								// needs work -- includes triggers, D-pad, etc.
+								// to-do: needs work -- includes triggers, D-pad, etc.
 								.or(that.onButtonDown)
 								.then(function () { changeState(states.title); });
 							

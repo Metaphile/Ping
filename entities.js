@@ -110,9 +110,6 @@ var ENTITIES = (function () {
 	exports.Ball = function (ctx) {
 		var that = this;
 		
-		// to-do: disabled ball can still collide with tokens :-(
-		that.enabled = true;
-		
 		that.position = new ENGINE.Vector2();
 		that.velocity = new ENGINE.Vector2();
 		
@@ -132,15 +129,11 @@ var ENTITIES = (function () {
 		that.initialize = ENGINE.noop;
 		
 		that.update = function (deltaTime) {
-			if (!that.enabled) return;
-			
 			that.position.add(that.velocity.multipliedBy(deltaTime));
 			that.boundary.centerAt(that.position);
 		};
 		
 		that.draw = function () {
-			if (!that.enabled) return;
-			
 			ctx.beginPath();
 			ctx.arc(that.position.x, that.position.y, CONFIG.ballRadius, 0, Math.PI * 2);
 			ctx.fillStyle = 'white';
