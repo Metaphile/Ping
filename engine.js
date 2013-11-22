@@ -127,8 +127,8 @@ var ENGINE = (function () {
 			event.offsetX = event.offsetX || event.layerX;
 			event.offsetY = event.offsetY || event.layerY;
 			
-			event.movementX = event.movementX || event.webkitMovementX || event.mozMovementX;
-			event.movementY = event.movementY || event.webkitMovementY || event.mozMovementY;
+			event.movementX = event.movementX || event.webkitMovementX || event.mozMovementX || 0;
+			event.movementY = event.movementY || event.webkitMovementY || event.mozMovementY || 0;
 			
 			return event;
 		});
