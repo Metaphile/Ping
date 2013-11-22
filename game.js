@@ -229,7 +229,7 @@ var GAME = (function () {
 						})
 						.then(function (y) {
 							for (var i = 0, n = paddles.length; i < n; i++) {
-								paddles[i].velocity.y = y * 700;
+								paddles[i].velocity.y = CONFIG.thumbstickCurve(y) * 800;
 							}
 						});
 					

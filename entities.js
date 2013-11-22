@@ -106,7 +106,7 @@ var ENTITIES = (function () {
 	exports.Ball = function (ctx) {
 		var that = this;
 		
-		// disabled ball can still collide with tokens :-(
+		// to-do: disabled ball can still collide with tokens :-(
 		that.enabled = true;
 		
 		that.position = new ENGINE.Vector2();
