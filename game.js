@@ -186,8 +186,11 @@ var GAME = (function () {
 					};
 					entities.push(initialTokenSpawner);
 					
-					var ball = new ENTITIES.Ball(ctx);
-					entities.push(ball);
+					var balls = new ENTITIES.EntityPool(function () {
+						return new ENTITIES.Ball(ctx);
+					}, 10);
+					entities.push(balls);
+					var ball;
 					
 					entities.push(pointses);
 					
@@ -198,11 +201,11 @@ var GAME = (function () {
 						spareBalls = CONFIG.numBalls;
 						// vertically center paddles
 						for (var i = 0, n = paddles.length; i < n; i++) paddles[i].position.y = ctx.canvas.height/2;
-						ball.enabled = true;
 						
-						// put away any tokens that are currently out
-						cherryTokens.forEach(function (token) { cherryTokens.putBack(token); });
-						bananaTokens.forEach(function (token) { bananaTokens.putBack(token); });
+						var i = entities.length;
+						while (i--) entities[i].initialize();
+						
+						ball = balls.getNext();
 						
 						initialTokenSpawner.initialize();
 						
@@ -493,7 +496,6 @@ var GAME = (function () {
 							multiplierTimeoutRemaining = CONFIG.multiplierTimeout;
 							
 							var points = pointses.getNext();
-							points.initialize();
 							points.value = pointsAwarded;
 							points.position.x = token.position.x;
 							points.position.y = token.position.y;

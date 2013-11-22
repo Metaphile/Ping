@@ -47,6 +47,8 @@ var ENTITIES = (function () {
 		
 		that.boundary = new ENGINE.AABB(left, top, width, height);
 		
+		that.initialize = ENGINE.noop;
+		
 		that.update = ENGINE.noop;
 		
 		that.draw = function () {
@@ -79,6 +81,8 @@ var ENTITIES = (function () {
 			that.width,
 			CONFIG.paddleHeight
 		);
+		
+		that.initialize = ENGINE.noop;
 		
 		that.update = function (deltaTime) {
 			that.position.add(that.velocity.multipliedBy(deltaTime));
@@ -124,6 +128,8 @@ var ENTITIES = (function () {
 		var boop = new Audio('sounds/boop.ogg');
 		boop.playbackRate = 0.5;
 		boop.volume = 0.1;
+		
+		that.initialize = ENGINE.noop;
 		
 		that.update = function (deltaTime) {
 			if (!that.enabled) return;
@@ -271,6 +277,8 @@ var ENTITIES = (function () {
 		delegateProperties('position', 'width', 'height', 'boundary');
 		delegateMethods('update', 'draw', 'onCollision');
 		
+		that.initialize = function () { changeState(states.base); };
+		
 		states.main = (function () {
 			function Main() {
 				var that = this;
@@ -408,7 +416,7 @@ var ENTITIES = (function () {
 			return new Main();
 		}());
 		
-		changeState(states.base);
+		that.initialize();
 	};
 	
 	exports.EntityPool = function (createEntity, count) {
@@ -422,6 +430,10 @@ var ENTITIES = (function () {
 			entities.push(createEntity());
 			active.push(false);
 		}
+		
+		that.initialize = function () {
+			that.forEach(that.putAway);
+		};
 		
 		that.forEach = function (visit) {
 			for (var i = 0, n = entities.length; i < n; i++) {
@@ -437,6 +449,7 @@ var ENTITIES = (function () {
 				
 				if (!active[lastChecked]) {
 					active[lastChecked] = true;
+					entities[lastChecked].initialize();
 					return entities[lastChecked];
 				}
 			}
@@ -447,7 +460,7 @@ var ENTITIES = (function () {
 			return entities[lastChecked];
 		};
 		
-		that.putBack = function (entity) {
+		that.putAway = function (entity) {
 			var i = entities.indexOf(entity);
 			if (i > -1) active[i] = false;
 		};
@@ -459,6 +472,8 @@ var ENTITIES = (function () {
 		that.draw = function () {
 			that.forEach(function (entity) { entity.draw(); });
 		};
+		
+		that.initialize();
 	};
 	
 	return exports;
