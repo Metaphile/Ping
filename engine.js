@@ -124,9 +124,13 @@ var ENGINE = (function () {
 		var that = this;
 		
 		that.move = exports.streamify(function (event) {
-			if ('offsetX' in event) return { x: event.offsetX, y: event.offsetY };
-			// Firefox
-			else return { x: event.layerX, y: event.layerY };
+			event.offsetX = event.offsetX || event.layerX;
+			event.offsetY = event.offsetY || event.layerY;
+			
+			event.movementX = event.movementX || event.webkitMovementX || event.mozMovementX;
+			event.movementY = event.movementY || event.webkitMovementY || event.mozMovementY;
+			
+			return event;
 		});
 		
 		that.down = exports.streamify();
