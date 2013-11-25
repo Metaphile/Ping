@@ -45,11 +45,19 @@ var ENTITIES = (function () {
 	exports.Wall = function (ctx, left, top, width, height) {
 		var that = this;
 		
+		var SHAKE_DURATION = 1;
+		var verticalOffset = new exports.Tween(ENGINE.tweens.easeOutElastic, -SHAKE_DURATION, 0, 0);
+		
 		that.boundary = new ENGINE.AABB(left, top, width, height);
 		
-		that.initialize = ENGINE.noop;
+		that.initialize = function () {
+			verticalOffset.initialize();
+			verticalOffset.update(SHAKE_DURATION);
+		};
 		
-		that.update = ENGINE.noop;
+		that.update = function (deltaTime) {
+			verticalOffset.update(deltaTime);
+		};
 		
 		that.draw = function () {
 			ctx.lineWidth = GAME.SPRITE_SCALE_FACTOR;
@@ -58,12 +66,20 @@ var ENTITIES = (function () {
 			ctx.beginPath();
 			ctx.rect(
 				that.boundary.left   + ctx.lineWidth/2,
-				that.boundary.top    + ctx.lineWidth/2,
+				that.boundary.top    + ctx.lineWidth/2 + verticalOffset.currentValue,
 				that.boundary.width  - ctx.lineWidth,
-				that.boundary.height - ctx.lineWidth
+				that.boundary.height - ctx.lineWidth   + verticalOffset.currentValue
 			);
 			
 			ctx.stroke();
+		};
+		
+		that.onCollision = function (collidable, escapeVector) {
+			if (collidable instanceof exports.Ball) {
+				verticalOffset.startValue = 0;
+				verticalOffset.endValue   = escapeVector.y;
+				verticalOffset.initialize();
+			}
 		};
 	};
 	
@@ -468,6 +484,37 @@ var ENTITIES = (function () {
 		
 		that.initialize();
 	};
+	
+	exports.Tween = (function () {
+		function Tween(easingFunction, duration, startValue, endValue) {
+			this.easingFunction = easingFunction;
+			this.duration = duration;
+			this.startValue = startValue;
+			this.endValue = endValue;
+			
+			this.initialize();
+		}
+		
+		Tween.prototype.initialize = function () {
+			this.update = Tween.prototype.update;
+			
+			this.elapsed = 0;
+			this.update(0);
+		};
+		
+		Tween.prototype.update = function (deltaTime) {
+			this.elapsed += deltaTime;
+			
+			if (this.elapsed >= this.duration) {
+				this.elapsed = this.duration;
+				this.update = ENGINE.noop;
+			}
+			
+			this.currentValue = this.easingFunction(null, this.elapsed, this.startValue, this.endValue, this.duration);
+		};
+		
+		return Tween;
+	}());
 	
 	return exports;
 }());

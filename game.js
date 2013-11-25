@@ -248,6 +248,7 @@ var GAME = (function () {
 								var escapeVector = ball.boundary.test(wall.boundary);
 								if (escapeVector) {
 									ball.onCollision(wall, escapeVector);
+									wall.onCollision(ball, escapeVector.inverted());
 								}
 							});
 							
@@ -397,12 +398,15 @@ var GAME = (function () {
 								
 								remaining = DURATION;
 								
-								var ball = balls.getNext();
-								spareBalls--;
-								ball.position.x = ctx.canvas.width/2;
-								ball.position.y = ctx.canvas.height/2;
-								ball.velocity.x = 0;
-								ball.velocity.y = 0;
+								var i = 10;
+								while (i--) {
+									var ball = balls.getNext();
+									// spareBalls--;
+									ball.position.x = ctx.canvas.width/2;
+									ball.position.y = ctx.canvas.height/2;
+									ball.velocity.x = 0;
+									ball.velocity.y = 0;
+								}
 								
 								changeState(states.servingNotPaused);
 							};
@@ -431,8 +435,8 @@ var GAME = (function () {
 												var angle = Math.randRange(-45, 45);
 												// randomly serve to the left or right
 												if (Math.random() >= 0.5) { angle += 180; }
-												ball.velocity.x = Math.cos(angle * Math.PI/180) * CONFIG.ballSpeed;
-												ball.velocity.y = Math.sin(angle * Math.PI/180) * CONFIG.ballSpeed;
+												ball.velocity.x = Math.cos(angle * Math.PI/180) * CONFIG.ballSpeed * Math.randRange(0.5, 1.5);
+												ball.velocity.y = Math.sin(angle * Math.PI/180) * CONFIG.ballSpeed * Math.randRange(0.5, 1.5);
 											});
 											
 											changeState(states.playing);
