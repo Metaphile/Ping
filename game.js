@@ -147,7 +147,8 @@ var GAME = (function () {
 						
 						var numCherryTokensRemaining;
 						var numBananaTokensRemaining;
-						var SPAWN_INTERVAL = 1/8, spawnIntervalRemaining;
+						// tokens will finish spawning at 1 second
+						var SPAWN_INTERVAL = (1 - 0.8) / (CONFIG.numCherryTokens + CONFIG.numBananaTokens), spawnIntervalRemaining;
 						
 						that.initialize = function () {
 							numCherryTokensRemaining = CONFIG.numCherryTokens;
