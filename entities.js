@@ -450,6 +450,8 @@ var ENTITIES = (function () {
 			// uht-oh! all out of entities; recycle the oldest entity
 			lastChecked++;
 			if (lastChecked >= entities.length) lastChecked = 0;
+			active[lastChecked] = true;
+			entities[lastChecked].initialize();
 			return entities[lastChecked];
 		};
 		

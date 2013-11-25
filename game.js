@@ -260,7 +260,7 @@ var GAME = (function () {
 							});
 							
 							// ball-void collisions
-							if (ball.position.x - CONFIG.ballRadius < 0 || ball.position.x - CONFIG.ballRadius > ctx.canvas.width) {
+							if (ball.position.x + CONFIG.ballRadius < 0 || ball.position.x - CONFIG.ballRadius > ctx.canvas.width) {
 								balls.putAway(ball);
 								
 								// if there are no balls left on the court, end the round
