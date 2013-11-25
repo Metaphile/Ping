@@ -398,12 +398,15 @@ var GAME = (function () {
 								
 								remaining = DURATION;
 								
-								var ball = balls.getNext();
 								spareBalls--;
-								ball.position.x = ctx.canvas.width/2;
-								ball.position.y = ctx.canvas.height/2;
-								ball.velocity.x = 0;
-								ball.velocity.y = 0;
+								var i = 5;
+								while (i--) {
+									var ball = balls.getNext();
+									ball.position.x = ctx.canvas.width/2 + Math.randRange(-10, 10);
+									ball.position.y = ctx.canvas.height/2 + Math.randRange(-10, 10);
+									ball.velocity.x = 0;
+									ball.velocity.y = 0;
+								}
 								
 								changeState(states.servingNotPaused);
 							};
@@ -429,11 +432,12 @@ var GAME = (function () {
 										remaining -= deltaTime;
 										if (remaining <= 0) {
 											balls.forEach(function (ball) {
-												var angle = Math.randRange(-45, 45);
+												var angle = Math.randRange(-70, 70);
+												var speedAdjustment = Math.randRange(0.75, 1.25);
 												// randomly serve to the left or right
 												if (Math.random() >= 0.5) { angle += 180; }
-												ball.velocity.x = Math.cos(angle * Math.PI/180) * CONFIG.ballSpeed;
-												ball.velocity.y = Math.sin(angle * Math.PI/180) * CONFIG.ballSpeed;
+												ball.velocity.x = Math.cos(angle * Math.PI/180) * CONFIG.ballSpeed * speedAdjustment;
+												ball.velocity.y = Math.sin(angle * Math.PI/180) * CONFIG.ballSpeed * speedAdjustment;
 											});
 											
 											changeState(states.playing);
