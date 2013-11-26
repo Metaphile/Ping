@@ -116,18 +116,6 @@ var GAME = (function () {
 						walls.push(lowerWall);
 					}());
 					
-					(function () {
-						var leftPaddle = new ENTITIES.Paddle(ctx);
-						leftPaddle.position.x = leftPaddle.width/2 + 30;
-						entities.push(leftPaddle);
-						paddles.push(leftPaddle);
-						
-						var rightPaddle = new ENTITIES.Paddle(ctx);
-						rightPaddle.position.x = ctx.canvas.width - rightPaddle.width/2 - 30;
-						entities.push(rightPaddle);
-						paddles.push(rightPaddle);
-					}());
-					
 					var pointses = new ENTITIES.EntityPool(function () {
 						return new ENTITIES.Points(ctx);
 					}, CONFIG.numCherryTokens + CONFIG.numBananaTokens + 10);
@@ -141,6 +129,18 @@ var GAME = (function () {
 						return new ENTITIES.Token(ctx, ENTITIES.images.bananas, 500, that);
 					}, CONFIG.numBananaTokens);
 					entities.push(bananaTokens);
+					
+					(function () {
+						var leftPaddle = new ENTITIES.Paddle(ctx);
+						leftPaddle.position.x = leftPaddle.width/2 + 30;
+						entities.push(leftPaddle);
+						paddles.push(leftPaddle);
+						
+						var rightPaddle = new ENTITIES.Paddle(ctx);
+						rightPaddle.position.x = ctx.canvas.width - rightPaddle.width/2 - 30;
+						entities.push(rightPaddle);
+						paddles.push(rightPaddle);
+					}());
 					
 					var initialTokenSpawner = new function () {
 						var that = this;
@@ -256,6 +256,7 @@ var GAME = (function () {
 								var escapeVector = ball.boundary.test(paddle.boundary);
 								if (escapeVector) {
 									ball.onCollision(paddle, escapeVector);
+									paddle.onCollision(ball, escapeVector.inverted());
 								}
 							});
 							
@@ -399,7 +400,7 @@ var GAME = (function () {
 								remaining = DURATION;
 								
 								spareBalls--;
-								var i = 5;
+								var i = 10;
 								while (i--) {
 									var ball = balls.getNext();
 									ball.position.x = ctx.canvas.width/2 + Math.randRange(-10, 10);
@@ -433,7 +434,7 @@ var GAME = (function () {
 										if (remaining <= 0) {
 											balls.forEach(function (ball) {
 												var angle = Math.randRange(-70, 70);
-												var speedAdjustment = Math.randRange(0.75, 1.25);
+												var speedAdjustment = Math.randRange(2/3, 1);
 												// randomly serve to the left or right
 												if (Math.random() >= 0.5) { angle += 180; }
 												ball.velocity.x = Math.cos(angle * Math.PI/180) * CONFIG.ballSpeed * speedAdjustment;

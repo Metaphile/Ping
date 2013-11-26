@@ -70,6 +70,8 @@ var ENTITIES = (function () {
 	exports.Paddle = function (ctx) {
 		var that = this;
 		
+		var bounceOffset = new exports.Tween(ENGINE.tweens.easeOutElastic, 0, 0, 3);
+		
 		that.position = new ENGINE.Vector2();
 		that.velocity = new ENGINE.Vector2();
 		
@@ -82,16 +84,21 @@ var ENTITIES = (function () {
 			CONFIG.paddleHeight
 		);
 		
-		that.initialize = ENGINE.noop;
+		that.initialize = function () {
+			bounceOffset.initialize();
+			bounceOffset.end();
+		};
 		
 		that.update = function (deltaTime) {
+			bounceOffset.update(deltaTime);
+			
 			that.position.add(that.velocity.multipliedBy(deltaTime));
 			that.boundary.centerAt(that.position);
 		};
 		
 		that.draw = function () {
 			ctx.fillStyle = 'white';
-			ctx.fillRect(that.position.x - that.width/2, that.position.y - CONFIG.paddleHeight/2, that.width, CONFIG.paddleHeight);
+			ctx.fillRect(that.position.x - that.width/2 + bounceOffset.currentValue, that.position.y - CONFIG.paddleHeight/2, that.width, CONFIG.paddleHeight);
 		};
 		
 		that.moveTo = function (y) {
@@ -103,6 +110,11 @@ var ENTITIES = (function () {
 			if (collidable instanceof exports.Wall) {
 				that.position.add(escapeVector);
 				that.boundary.centerAt(that.position);
+			}
+			
+			if (collidable instanceof exports.Ball) {
+				bounceOffset.startValue = escapeVector.normalized().x * -3;
+				bounceOffset.initialize();
 			}
 		};
 	};
@@ -136,6 +148,11 @@ var ENTITIES = (function () {
 		that.draw = function () {
 			ctx.beginPath();
 			ctx.arc(that.position.x, that.position.y, CONFIG.ballRadius, 0, Math.PI * 2);
+			
+			ctx.strokeStyle = 'gray';
+			ctx.lineWidth = 2;
+			ctx.stroke();
+			
 			ctx.fillStyle = 'white';
 			ctx.fill();
 		};
@@ -466,6 +483,30 @@ var ENTITIES = (function () {
 		
 		that.draw = function () {
 			that.forEach(function (entity) { entity.draw(); });
+		};
+		
+		that.initialize();
+	};
+	
+	exports.Tween = function (tweeningFunction, startValue, endValue, duration) {
+		var that = this;
+		var elapsed;
+		
+		that.startValue   = startValue;
+		that.endValue     = endValue;
+		
+		that.initialize = function () {
+			elapsed = 0;
+			that.currentValue = that.startValue;
+		};
+		
+		that.update = function (deltaTime) {
+			elapsed = Math.min(elapsed + deltaTime, duration);
+			that.currentValue = that.startValue + (tweeningFunction(null, elapsed, 0, 1, duration) * (that.endValue - that.startValue))
+		};
+		
+		that.end = function () {
+			that.update(duration);
 		};
 		
 		that.initialize();
