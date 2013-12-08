@@ -423,5 +423,34 @@ var ENGINE = (function () {
 		};
 	}());
 	
+	exports.Dictionary = function () {
+		var that = this;
+		var keys   = [];
+		var values = [];
+		
+		that.set = function (key, value) {
+			var keyIndex = keys.indexOf(key);
+			// if key is new, append to keys array
+			// push returns new length, so push() - 1 = new index
+			if (keyIndex === -1) keyIndex = keys.push(key) - 1;
+			values[keyIndex] = value;
+		};
+		
+		that.get = function (key) {
+			return values[keys.indexOf(key)];
+		};
+		
+		var forEachCallback;
+		
+		function callForEachCallback(key, keyIndex) {
+			forEachCallback(values[keyIndex], key);
+		}
+		
+		that.forEach = function (callback) {
+			forEachCallback = callback;
+			keys.forEach(callForEachCallback);
+		};
+	};
+	
 	return exports;
 }());
