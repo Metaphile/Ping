@@ -43,47 +43,6 @@ var ENGINE = (function (my) {
 		return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b;
 	};
 	
-	my.createStateMachine = (function () {
-		function State() {
-			this.onEnter = ENGINE.noop;
-			this.onExit  = ENGINE.noop;
-		};
-		
-		function StateMachine() {
-			var that = this;
-			
-			that.states = { base: new State() };
-			that.currentState = that.states.base;
-			
-			that.changeState = function (newState) {
-				that.currentState.onExit();
-				that.currentState = newState;
-				that.currentState.onEnter();
-			};
-		};
-		
-		return function (protocol, proxy) {
-			var stateMachine = new StateMachine();
-			
-			for (var key in protocol) {
-				if (!protocol.hasOwnProperty(key)) continue;
-				
-				// forward function calls from proxy to current state
-				if (typeof protocol[key] === 'function') {
-					// default implementation
-					stateMachine.states.base[key] = ENGINE.noop;
-					proxy[key] = function () { return stateMachine.currentState[key].apply(stateMachine.currentState, arguments); };
-				// forward properties
-				} else {
-					Object.defineProperty(proxy, key, {
-						get: function () { return stateMachine.currentState[key] },
-						set: function (value) { stateMachine.currentState[key] = value; }
-					});
-				}
-			}
-		};
-	}());
-	
 	my.Dictionary = function () {
 		var that = this;
 		var keys   = [];
