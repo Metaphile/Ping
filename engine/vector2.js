@@ -1,4 +1,6 @@
 var ENGINE = (function (my) {
+	'use strict';
+	
 	function Vector2(x, y) {
 		this.x = x || 0;
 		this.y = y || 0;
@@ -73,6 +75,5 @@ var ENGINE = (function (my) {
 	};
 	
 	my.Vector2 = Vector2;
-	
 	return my;
 }(ENGINE || {}));
