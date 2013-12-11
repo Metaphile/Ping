@@ -23,11 +23,15 @@ var ENGINE = (function (my) {
 		var stateMachine = new StateMachine();
 		
 		properties.forEach(function (property) {
+			stateMachine.states.base[property] = my.noop;
+			
 			Object.defineProperty(proxy, property, {
 				get: function () { return stateMachine.currentState[property] },
 				set: function (value) { stateMachine.currentState[property] = value; }
 			});
 		});
+		
+		return stateMachine;
 	};
 	
 	return my;

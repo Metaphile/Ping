@@ -250,52 +250,17 @@ var ENTITIES = (function () {
 	
 	exports.Token = function (ctx, sprite, value, game) {
 		var that = this;
-		var states = {}, currentState;
+		var fsm = ENGINE.createStateMachine(['initialize', 'position', 'width', 'height', 'boundary', 'update', 'draw', 'onCollision'], that);
 		
-		function changeState(newState) {
-			currentState = newState;
-			currentState.onEnter();
-		}
-		
-		states.base = {
-			onEnter: function () { changeState(states.main); }
-		};
-		
-		// creates public properties that delegate to the current state
-		function delegateProperties(/* ... */) {
-			var names = Array.prototype.slice.call(arguments);
-			
-			names.forEach(function (name) {
-				Object.defineProperty(that, name, {
-					get: function () { return currentState[name] },
-					set: function (value) { currentState[name] = value; }
-				});
-			});
-		}
-		
-		// creates public methods that delegate to the current state
-		function delegateMethods(/* ... */) {
-			var names = Array.prototype.slice.call(arguments);
-			
-			names.forEach(function (name) {
-				// default implementation
-				states.base[name] = ENGINE.noop;
-				that[name] = function () { currentState[name].apply(currentState, arguments); };
-			});
-		}
-		
-		delegateProperties('position', 'width', 'height', 'boundary');
-		delegateMethods('update', 'draw', 'onCollision');
-		
-		that.initialize = function () { changeState(states.base); };
-		
-		states.main = (function () {
+		fsm.states.main = (function () {
 			function Main() {
 				var that = this;
 				that.value = value;
 				
+				that.initialize = function () { fsm.changeState(fsm.states.main); };
+				
 				that.onEnter = function () {
-					changeState(states.spawning);
+					fsm.changeState(fsm.states.spawning);
 				};
 				
 				that.position = new ENGINE.Vector2();
@@ -311,7 +276,7 @@ var ENTITIES = (function () {
 					that.height
 				);
 				
-				states.spawning = (function () {
+				fsm.states.spawning = (function () {
 					function Spawning() {
 						var that = this;
 						var SPAWN_DURATION = 0.8, spawnDurationElapsed;
@@ -328,7 +293,7 @@ var ENTITIES = (function () {
 							that.__proto__.update(deltaTime);
 							
 							spawnDurationElapsed += deltaTime;
-							if (spawnDurationElapsed >= SPAWN_DURATION) changeState(states.normal);
+							if (spawnDurationElapsed >= SPAWN_DURATION) fsm.changeState(fsm.states.normal);
 						};
 						
 						that.draw = function () {
@@ -344,11 +309,11 @@ var ENTITIES = (function () {
 						};
 					}
 					
-					Spawning.prototype = that; // states.main
+					Spawning.prototype = that; // fsm.states.main
 					return new Spawning();
 				}());
 				
-				states.normal = (function () {
+				fsm.states.normal = (function () {
 					function Normal() {
 						var that = this;
 						
@@ -365,16 +330,16 @@ var ENTITIES = (function () {
 							if (collidable instanceof exports.Ball) {
 								chaChing.replay();
 								game.onTokenCollected(that);
-								changeState(states.dying);
+								fsm.changeState(fsm.states.dying);
 							}
 						};
 					}
 					
-					Normal.prototype = that; // states.main
+					Normal.prototype = that; // fsm.states.main
 					return new Normal();
 				}());
 				
-				states.dying = (function () {
+				fsm.states.dying = (function () {
 					function Dying() {
 						var that = this;
 						var DEATH_DURATION = 1/3, deathDurationElapsed;
@@ -387,7 +352,7 @@ var ENTITIES = (function () {
 							that.__proto__.update(deltaTime);
 							
 							deathDurationElapsed += deltaTime;
-							if (deathDurationElapsed >= DEATH_DURATION) changeState(states.spawning);
+							if (deathDurationElapsed >= DEATH_DURATION) fsm.changeState(fsm.states.spawning);
 						};
 						
 						function f(x) {
@@ -407,7 +372,7 @@ var ENTITIES = (function () {
 						};
 					}
 					
-					Dying.prototype = that; // states.main
+					Dying.prototype = that; // fsm.states.main
 					return new Dying();
 				}());
 				
@@ -422,11 +387,11 @@ var ENTITIES = (function () {
 				};
 			}
 			
-			Main.prototype = states.base;
+			Main.prototype = fsm.states.base;
 			return new Main();
 		}());
 		
-		that.initialize();
+		fsm.changeState(fsm.states.main);
 	};
 	
 	exports.EntityPool = function (createEntity, count) {
