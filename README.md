@@ -1,6 +1,6 @@
 # Ping
 
-Ping is a single-player version of the classic video game, Pong.
+Ping is a single-player variation of the classic video game, Pong.
 
 ![Ping screenshot](/screenshot.png?raw=true)
 
