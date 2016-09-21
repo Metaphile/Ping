@@ -5,11 +5,11 @@ var ENGINE = (function (my) {
 		var that = this;
 		
 		that.move = my.streamify(function (event) {
-			event.offsetX = event.offsetX || event.layerX;
-			event.offsetY = event.offsetY || event.layerY;
+			// event.offsetX = event.offsetX || event.layerX;
+			// event.offsetY = event.offsetY || event.layerY;
 			
-			event.movementX = event.movementX || event.webkitMovementX || event.mozMovementX || 0;
-			event.movementY = event.movementY || event.webkitMovementY || event.mozMovementY || 0;
+			// event.movementX = event.movementX || event.webkitMovementX || event.mozMovementX || 0;
+			// event.movementY = event.movementY || event.webkitMovementY || event.mozMovementY || 0;
 			
 			return event;
 		});
