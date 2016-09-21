@@ -189,7 +189,7 @@ var GAME = (function () {
 					
 					var balls = new ENTITIES.EntityPool(function () {
 						return new ENTITIES.Ball(ctx);
-					}, 10);
+					}, 1);
 					entities.push(balls);
 					
 					entities.push(pointses);
@@ -403,8 +403,8 @@ var GAME = (function () {
 								var i = 10;
 								while (i--) {
 									var ball = balls.getNext();
-									ball.position.x = ctx.canvas.width/2 + Math.randRange(-10, 10);
-									ball.position.y = ctx.canvas.height/2 + Math.randRange(-10, 10);
+									ball.position.x = ctx.canvas.width/2 + Math.randRange(0, 0);
+									ball.position.y = ctx.canvas.height/2 + Math.randRange(0, 0);
 									ball.velocity.x = 0;
 									ball.velocity.y = 0;
 								}
