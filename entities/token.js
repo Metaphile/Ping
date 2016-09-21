@@ -70,8 +70,8 @@ var ENTITIES = (function (my) {
 						
 						that.onEnter = ENGINE.noop;
 						
-						var chaChing = new Audio('sounds/cha-ching.ogg');
-						chaChing.volume = 0.1;
+						// var chaChing = new Audio('sounds/cha-ching.ogg');
+						// chaChing.volume = 0.1;
 						
 						that.draw = function () {
 							ctx.drawImage(sprite, that.position.x - that.width/2, that.position.y - that.height/2, that.width, that.height);
@@ -79,7 +79,7 @@ var ENTITIES = (function (my) {
 						
 						that.onCollision = function (collidable, escapeVector) {
 							if (collidable instanceof my.Ball) {
-								chaChing.replay();
+								// chaChing.replay();
 								game.onTokenCollected(that);
 								fsm.changeState(fsm.states.dying);
 							}

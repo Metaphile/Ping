@@ -12,11 +12,11 @@ var ENTITIES = (function (my) {
 			CONFIG.ballRadius*2
 		);
 		
-		var beep = new Audio('sounds/boop.ogg');
-		beep.volume = 0.1;
-		var boop = new Audio('sounds/boop.ogg');
-		boop.playbackRate = 0.5;
-		boop.volume = 0.1;
+		// var beep = new Audio('sounds/boop.ogg');
+		// beep.volume = 0.1;
+		// var boop = new Audio('sounds/boop.ogg');
+		// boop.playbackRate = 0.5;
+		// boop.volume = 0.1;
 		
 		that.initialize = ENGINE.noop;
 		
@@ -39,7 +39,7 @@ var ENTITIES = (function (my) {
 		
 		that.onCollision = function (collidable, escapeVector) {
 			if (collidable instanceof my.Wall) {
-				beep.replay();
+				// beep.replay();
 				
 				that.position.add(escapeVector);
 				that.boundary.centerAt(that.position);
@@ -50,7 +50,7 @@ var ENTITIES = (function (my) {
 			}
 			
 			if (collidable instanceof my.Paddle) {
-				boop.replay();
+				// boop.replay();
 				
 				that.position.add(escapeVector);
 				that.boundary.centerAt(that.position);
@@ -71,7 +71,7 @@ var ENTITIES = (function (my) {
 					that.velocity.y = Math.sin(bounceAngle * Math.PI/180) * CONFIG.ballSpeed;
 				} else {
 					// bounce normally
-					boop.replay();
+					// boop.replay();
 					that.velocity = that.velocity.reflectedAbout(surfaceNormal);
 				}
 			}
